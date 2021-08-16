@@ -372,15 +372,15 @@ for (fips in fips_list){
   fips.df<-na.locf(fips.df) #Last Observation Carried Forward
   #fips.df$metrics.testPositivityRatio =  zoo::rollmean(fips.df$metrics.testPositivityRatio, 7, fill=NA, align="right")
   
-  if(last.fips.date>end){
+  if(last.fips.date<end){
     imputter <- fips.df[which(fips.df$date==last.fips.date),]
     imputter$date<-end
     fips.df<-rbind(fips.df,imputter)
   }
   
-  if(fips.df[which(fips.df$date==last.fips.date),"metrics.vaccinationsInitiatedRatio"]==0){
-    fips.df[which(fips.df$date==last.fips.date),"metrics.vaccinationsInitiatedRatio"]<-NA
-    fips.df[which(fips.df$date==last.fips.date),"metrics.vaccinationsCompletedRatio"]<-NA
+  if(fips.df[which(fips.df$date==end),"metrics.vaccinationsInitiatedRatio"]==0){
+    fips.df[which(fips.df$date==end),"metrics.vaccinationsInitiatedRatio"]<-NA
+    fips.df[which(fips.df$date==end),"metrics.vaccinationsCompletedRatio"]<-NA
   }
   
   
