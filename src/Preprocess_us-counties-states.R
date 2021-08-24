@@ -378,7 +378,7 @@ for (fips in fips_list){
     fips.df<-rbind(fips.df,imputter)
   }
   
-  if(fips.df[which(fips.df$date==end),"metrics.vaccinationsInitiatedRatio"]==0){
+  if(fips.df[which(fips.df$date>=end),"metrics.vaccinationsInitiatedRatio"]==0){
     fips.df[which(fips.df$date==end),"metrics.vaccinationsInitiatedRatio"]<-NA
     fips.df[which(fips.df$date==end),"metrics.vaccinationsCompletedRatio"]<-NA
   }
