@@ -348,7 +348,7 @@ act_data <- act_data[, which(names(act_data) %in% c("date","fips","metrics.testP
 
 act_dataF <- act_data[FALSE,] #clear all entry
 
-end<-max(act_data$date)
+end<-max(dataT$date)
 
 for (fips in fips_list){
 
@@ -379,8 +379,8 @@ for (fips in fips_list){
   }
   
   if(fips.df[which(fips.df$date>=end),"metrics.vaccinationsInitiatedRatio"]==0){
-    fips.df[which(fips.df$date==end),"metrics.vaccinationsInitiatedRatio"]<-NA
-    fips.df[which(fips.df$date==end),"metrics.vaccinationsCompletedRatio"]<-NA
+    fips.df[which(fips.df$date>=end),"metrics.vaccinationsInitiatedRatio"]<-NA
+    fips.df[which(fips.df$date>=end),"metrics.vaccinationsCompletedRatio"]<-NA
   }
   
   
