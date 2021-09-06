@@ -1,0 +1,3 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+6091,"Sierra","California",0.04110167568556,3.34574788668907,0.041101675685554,3.34574788668902,"2021-09-11",599,NA,0.0417816678502603,3.35118782400667,3.35050783184197,NA,NA,NA,NA,NA,NA
+6091,"Sierra","California",0.0586487270815072,3.52722597354221,0.0586487270815081,3.52722597354221,"2021-09-12",600,NA,0.0566548091282639,3.51127462991626,3.5132685478695,0.0175470513959472,0.0175470513959541,0.0148731412780036,1,1,1
