@@ -1,0 +1,2 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+31183,"Wheeler","Nebraska",0.0416726964005689,3.33623131252741,0.0416726964005703,3.33623131252741,"2021-10-10",628,NA,0.0460581941303862,3.37131529436594,3.36692979663612,NA,NA,NA,NA,NA,NA
