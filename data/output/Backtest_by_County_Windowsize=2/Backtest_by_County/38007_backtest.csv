@@ -1,0 +1,2 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+38007,"Billings","North Dakota",0.0898038948613031,3.77646731578057,0.0898038948613031,3.77646731578057,"2021-10-17",635,NA,0.0606732110558326,3.54342184533681,3.57255252914228,NA,NA,NA,NA,NA,NA
