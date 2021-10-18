@@ -1,2 +1,2 @@
 "fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
-31165,"Sioux","Nebraska",0.021053409197836,3.17127701490554,0.0210534091978358,3.17127701490554,"2021-10-17",635,NA,0.0255667363785849,3.20738363235153,3.20287030517078,NA,NA,NA,NA,NA,NA
+31165,"Sioux","Nebraska",0.0137933221323357,3.13424972757938,0.0137933221323365,3.13424972757938,"2021-10-18",636,NA,0.0182071893373207,3.16956066521926,3.16514679801428,NA,NA,NA,NA,NA,NA
