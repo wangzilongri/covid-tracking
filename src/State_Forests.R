@@ -104,6 +104,7 @@ for(cutoff in cutoff.list){
     # Concatenate every 7 days until no more
     # e.g. 51 is the start
     # Then on 63, we have 63,56
+    first.block.cutoff<-max(cutoff-400,first.block.cutoff)
     shift <- (cutoff - first.block.cutoff)%%windowsize 
     data.cutoff.list <- c(seq(first.block.cutoff + shift, cutoff, windowsize))
     #data.cutoff.list <- c(seq(first.block.cutoff, cutoff, 1))
