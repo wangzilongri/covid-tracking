@@ -1,0 +1,2 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+48301,"Loving","Texas",0.141411654049849,4.24797811637043,0.141411654049827,4.24797811637027,"2022-01-16",726,NA,0.130336734817379,4.15937876251068,4.17045368174313,NA,NA,NA,NA,NA,NA

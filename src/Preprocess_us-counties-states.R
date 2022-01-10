@@ -378,10 +378,22 @@ for (fips in fips_list){
     fips.df<-rbind(fips.df,imputter)
   }
   
+  fips.df$metrics.vaccinationsCompletedRatio[fips.df$metrics.vaccinationsCompletedRatio>1] <- 1
+  fips.df$metrics.vaccinationsInitiatedRatio[fips.df$metrics.vaccinationsInitiatedRatio>1] <- 1
+  
+  #fips.df[,which(dataF$metrics.vaccinationsCompletedRatio > 1) ] <- 1
+  
+  #fips.df %>% mutate(fips.df[,"metrics.vaccinationsCompletedRatio"] = ifelse(fips.df[,"metrics.vaccinationsCompletedRatio"] > 1, 1, fips.df[,"metrics.vaccinationsCompletedRatio"]),
+   #                  fips.df[,"metrics.vaccinationsInitiatedRatio"] = ifelse(fips.df[,"metrics.vaccinationsInitiatedRatio"] > 1, 1, fips.df[,"metrics.vaccinationsInitiatedRatio"]))
+  
+  
   if(fips.df[which(fips.df$date>=end),"metrics.vaccinationsInitiatedRatio"]==0){
     fips.df[which(fips.df$date>=end),"metrics.vaccinationsInitiatedRatio"]<-NA
     fips.df[which(fips.df$date>=end),"metrics.vaccinationsCompletedRatio"]<-NA
   }
+  
+  #if(fips.df[,"metrics.vaccinationsInitiatedRatio"]>1){fips.df[,"metrics.vaccinationsInitiatedRatio"]<-1}
+  #if(fips.df[,"metrics.vaccinationsCompletedRatio"]>1){fips.df[,"metrics.vaccinationsCompletedRatio"]<-1}
   
   
   # Append the data
