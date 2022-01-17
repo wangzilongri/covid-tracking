@@ -1,0 +1,2 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+48033,"Borden","Texas",0.147996814252878,4.33181456577447,0.147996814252879,4.33181456577448,"2022-01-23",733,NA,0.153586532771784,4.37653231392572,4.37094259540682,NA,NA,NA,NA,NA,NA
