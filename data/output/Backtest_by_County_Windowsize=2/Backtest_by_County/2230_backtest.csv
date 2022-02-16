@@ -1,0 +1,2 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+2230,"Skagway Municipality","Alaska",0.0416726964005628,3.33623131252736,0.0416726964005703,3.33623131252741,"2022-02-20",761,NA,0.0344883587644505,3.27875661143845,3.28594094907457,NA,NA,NA,NA,NA,NA
