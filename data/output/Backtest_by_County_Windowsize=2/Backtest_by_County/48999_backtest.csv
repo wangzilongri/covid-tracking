@@ -1,0 +1,4 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+48999,"Pending County Assignment","Texas",0,4.17438726989564,0,4.17438726989564,"2022-03-25",794,NA,-0.0125535461147959,4.07395890097727,4.08651244709207,NA,NA,NA,NA,NA,NA
+48999,"Pending County Assignment","Texas",0,4.17438726989564,0,4.17438726989564,"2022-03-26",795,NA,-0.0172799497105725,4.03614767221106,4.05342762192163,0,0,-0.0047264035957766,0,0,-1
+48999,"Pending County Assignment","Texas",0,4.17438726989564,0,4.17438726989564,"2022-03-27",796,NA,-0.0112542055221166,4.08435362571871,4.09560783124082,0,0,0.0060257441884559,0,0,1
