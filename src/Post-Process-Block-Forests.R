@@ -183,13 +183,13 @@ for (cutoff in cutofflist){
     #sigma<- 5.2
     #test.df$Rt<-with(test.df,exp(tau.hat*mu-0.5*(tau.hat**2)*(sigma**2)))
     
-    test.df[which(test.df$state == "Wisconsin"),"Predicted_Double_Days"]<- NA
-    test.df[which(test.df$state == "Washington"),"Predicted_Double_Days"]<- NA
+    #test.df[which(test.df$state == "Wisconsin"),"Predicted_Double_Days"]<- NA
+    #test.df[which(test.df$state == "Washington"),"Predicted_Double_Days"]<- NA
     
     #test.df[which(test.df$state == "Alabama"),"Predicted_Double_Days"]<- NA
       test.df[which(test.df$state == "Florida"),"Predicted_Double_Days"]<- NA
       
-    #test.df[which(test.df$fips == 48201),"Predicted_Double_Days"]<- NA
+    test.df[which(test.df$fips == 39095),"Predicted_Double_Days"]<- NA
     #test.df[which(test.df$fips == 2158),"Predicted_Double_Days"]<- NA
       # test.df[which(test.df$fips == 39155),"Predicted_Double_Days"]<- NA
       # test.df[which(test.df$fips == 48449),"Predicted_Double_Days"]<- NA
