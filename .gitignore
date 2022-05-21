@@ -7,3 +7,4 @@ __pycache__
 **/processed_us-counties_latest_minus7.csv
 **/us-counties_latest.csv
 **/14_Day_Table.csv
+*.rds

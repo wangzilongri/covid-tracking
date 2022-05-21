@@ -49,8 +49,8 @@ dir.create(plotDir)
 #DplotDir <- file.path(CountyPlot,"Backtest_by_County_Dplots")
 #dir.create(DplotDir)
 
-  for(c in county_list){
-#foreach(c=county_list)%dopar%{
+#for(c in county_list){
+foreach(c=county_list)%dopar%{
     
     check.file.name <- paste0(toString(c),"_backtest.csv")
     check.file.full.name <- file.path(CountyDir, check.file.name) 
