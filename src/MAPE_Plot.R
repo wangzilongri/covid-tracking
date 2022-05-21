@@ -3,7 +3,7 @@ list.of.packages <- c("ggplot2", "Rcpp", "grf", "caret", "mltools", "rpart", "mi
 list.of.packages <- c(list.of.packages, "zoo", "dtw", "foreach", "evaluate","rlist","data.table")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages,"http://cran.us.r-project.org")
+if(length(new.packages)) install.packages(new.packages, repos="http://cran.us.r-project.org", dependencies = TRUE, INSTALL_opts = '--no-lock')
 
 #install.packages("RApiDatetime", repos="http://cran.rstudio.com/", dependencies=TRUE)
 
