@@ -2,7 +2,7 @@ list.of.packages <- c("ggplot2", "Rcpp", "grf", "caret", "mltools", "rpart", "mi
 list.of.packages <- c(list.of.packages, "zoo","usmap","readxl","lubridate")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages, lib=‘/home/zwang937/local/R_libs’, repos="http://cran.us.r-project.org", dependencies = TRUE, INSTALL_opts = '--no-lock')
+if(length(new.packages)) install.packages(new.packages, lib='/home/zwang937/local/R_libs', repos="http://cran.us.r-project.org", dependencies = TRUE, INSTALL_opts = '--no-lock')
 
 lapply(list.of.packages, require, character.only = TRUE)
 
