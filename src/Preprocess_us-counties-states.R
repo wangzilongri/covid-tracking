@@ -3,7 +3,7 @@ list.of.packages <- c(list.of.packages, "zoo","usmap","readxl","lubridate","tidy
 
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages, repos="http://cran.us.r-project.org",dependencies = TRUE, INSTALL_opts = '--no-lock')
+if(length(new.packages)) install.packages(new.packages, lib=‘/home/zwang937/local/R_libs’, repos="http://cran.us.r-project.org",dependencies = TRUE, INSTALL_opts = '--no-lock')
 # Will need to add custom installation folder for servers without admin access
 lapply(list.of.packages, require, character.only = TRUE) 
 
