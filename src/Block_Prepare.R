@@ -4,7 +4,7 @@ list.of.packages <- c(list.of.packages, "zoo", "dtw", "foreach", "evaluate","rli
 
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages)
+if(length(new.packages)) install.packages(new.packages,"http://cran.us.r-project.org")
 
 
 lapply(list.of.packages, require, character.only = TRUE)
@@ -13,7 +13,7 @@ lapply(list.of.packages, require, character.only = TRUE)
 
 
 # Set Working Directory to File source directory
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 source("county_analysis_lm.R")
 registerDoParallel(cores=detectCores())
 

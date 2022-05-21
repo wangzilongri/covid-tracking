@@ -2,13 +2,13 @@ list.of.packages <- c("ggplot2", "Rcpp", "grf", "caret", "mltools", "rpart", "mi
 list.of.packages <- c(list.of.packages, "zoo", "dtw", "foreach", "evaluate","rlist","hash", "e1071","tidyverse")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages)
+if(length(new.packages)) install.packages(new.packages,"http://cran.us.r-project.org")
 
 lapply(list.of.packages, require, character.only = TRUE)
 
 
 # Set Working Directory to File source directory
-setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 #source("county_analysis.R")
 registerDoParallel(cores=detectCores())
 

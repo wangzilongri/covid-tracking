@@ -1,0 +1,2 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+27011,"Big Stone","Minnesota",0.0479394622891212,3.84925160111269,0.0479394622891198,3.84925160111269,"2020-09-29",252,NA,0.0527286825001,3.88756536280053,3.88277614258955,NA,NA,NA,NA,NA,NA

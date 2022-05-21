@@ -3,23 +3,25 @@ list.of.packages <- c(list.of.packages, "zoo","usmap","readxl","lubridate","tidy
 
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
-if(length(new.packages)) install.packages(new.packages, repos="http://cran.us.r-project.org",dependencies = TRUE, INSTALL_opts = '--no-lock')
+if(length(new.packages)) install.packages(new.packages, repos="http://cran.us.r-project.org", dependencies = TRUE, INSTALL_opts = '--no-lock')
 # Will need to add custom installation folder for servers without admin access
 lapply(list.of.packages, require, character.only = TRUE) 
 
 
-# Set Working Directory to File source directory
-# Only works within RStudio
-#setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
-
-
-#registerDoParallel(cores=6)
-
-
-# URL of NYTimes Data
 nyt_url <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"
 
 
+CUSP = paste("../data/COVID-19 US state policy database 7_23_2021",".xlsx",sep="")
+
+# Pre-processing CUSP data
+# URL of COVID Tracking Data
+track_url<-"https://covidtracking.com/data/download/all-states-history.csv"
+track_data<-read.csv(track_url)
+
+# Pre-processing the data
+
+track_data<-track_data[, !(names(track_data) %in% c("dataQualityGrade"))]
+track_data$date<-ymd(track_data$date)
 destfile <- paste("../data/us-counties_latest",".csv",sep="")
 county_data <- read.csv(nyt_url)
 write.csv(county_data, destfile, row.names=FALSE)
@@ -65,202 +67,10 @@ county_data$days_from_start <- as.numeric(county_data$datetime- start_date , uni
 
 fips_list = sort(unique(county_data$fips))
 
-# get active cases
-
-for (fips in fips_list){
-  
-  fips.df <- county_data[which(county_data$fips==fips),]
-  if (dim(fips.df)[1] == 0){
-    print(paste("fips ",toString(fips)," has no entry ",sep=""))
-    next
-  }
-  first.fips.date <- min(fips.df$days_from_start)
-  last.fips.date <- max(fips.df$days_from_start)
-  
-  if(first.fips.date == last.fips.date){
-    print(paste("fips ",toString(fips)," only has one entry ",sep=""))
-    next
-  }
-  for (day in (first.fips.date+1):last.fips.date){
-    print(day)
-    county.day.slice <- fips.df[which(fips.df$days_from_start == day),]
-    if (dim(county.day.slice)[1] == 0){
-      # Missing days inbetween e.g. fips 31057 day 184 jumps to 189
-      print(paste("imputing for day ",toString(day)," of fips ",toString(fips),sep=""))
-      imputter <- fips.df[which(fips.df$days_from_start == day-1),]
-      # Change the date
-      imputter$days_from_start <- day
-      imputter$datetime <- as.Date(imputter$datetime)+1
-      imputter$date <- as.Date(imputter$date)+1
-      # Change the deaths
-      imputter$deaths<-0
-      # Append the data
-      fips.df<-rbind(fips.df,imputter)
-      county_data <- rbind(county_data,imputter)
-      #county_data[which(county_data$fips==fips & !is.na(county_data$rolled_cases) & county_data$days_from_start == day),] <- fips.df[which(fips.df$days_from_start == day),]
-    }
-    #fips.df[which(fips.df$days_from_start == day),"new_rolled_cases"] <- fips.df[which(fips.df$days_from_start == day),"rolled_cases"] - fips.df[which(fips.df$days_from_start == day-1),"rolled_cases"]
-  }
-  
-  if((first.fips.date+22) > last.fips.date){
-    for(day in first.fips.date:last.fips.date){
-      #total.deaths<- sum(fips.df[which(fips.df$days_from_start<= day),"deaths"])
-    fips.df[which(fips.df$days_from_start == day),"active_cases"] <- fips.df[which(fips.df$days_from_start == day),"cases"]
-    }
-    next
-  }else{
-    
-    for(day in first.fips.date:(first.fips.date+21)){
-      #total.deaths<- sum(fips.df[which(fips.df$days_from_start<= day),"deaths"])
-      fips.df[which(fips.df$days_from_start == day),"active_cases"] <- fips.df[which(fips.df$days_from_start == day),"cases"]
-    }
-    
-    for (day in (first.fips.date+22):last.fips.date){
-      #total.deaths0<- sum(fips.df[which(fips.df$days_from_start<= day),"deaths"])
-      #total.deaths22<- sum(fips.df[which(fips.df$days_from_start<= day-22),"deaths"])
-      fips.df[which(fips.df$days_from_start == day),"active_cases"] <- fips.df[which(fips.df$days_from_start == day),"cases"] - fips.df[which(fips.df$days_from_start == day-22),"cases"]
-      
-      }
-    
-    }
-  county_data[which(county_data$fips==fips),"cases"] <- fips.df[,"active_cases"]
-  
-  print(fips)
-}
-
-
-# Add logcases
-
-
-#county_data$logcases <- log(county_data$cases)
-
-
-
-#Replace less than 0 cases with 0.01 cases to make 7 days average less than 1/7
-
-#county_data$cases[county_data$cases==0]<-0.1
-
-
-# Take 7 day rolling average per county
-
-
-foreach(fips = fips_list)%do%{
-  county_slice = county_data[which(county_data$fips==fips), ]
-  county_slice$rolled_cases =  zoo::rollmean(county_slice$cases, 7, fill=NA, align="right")
-  county_data[which(county_data$fips==fips), "rolled_cases"] <- county_slice$rolled_cases
-}
-
-
-# Obtain the daily new cases
-present.fips.list <- sort(unique(county_data$fips))
-
-
-#county_data$new_rolled_cases <- NA
-# First loop through counties
-# present.fips.list
-county_data_backup <- county_data
-for (fips in present.fips.list){
-  
-  fips.df <- county_data[which(county_data$fips==fips & !is.na(county_data$rolled_cases)),]
-  if (dim(fips.df)[1] == 0){
-    print(paste("fips ",toString(fips)," has no entry ",sep=""))
-    next
-  }
-  first.fips.date <- min(fips.df$days_from_start)
-  last.fips.date <- max(fips.df$days_from_start)
-  #fips.df[which(fips.df$days_from_start == first.fips.date),"new_rolled_cases"] <- fips.df[which(fips.df$days_from_start == first.fips.date),"rolled_cases"]
-  print(fips)
-  if(first.fips.date == last.fips.date){
-    print(paste("fips ",toString(fips)," only has one entry ",sep=""))
-    next
-  }
-  for (day in (first.fips.date+1):last.fips.date){
-    print(day)
-    county.day.slice <- fips.df[which(fips.df$days_from_start == day),]
-    if (dim(county.day.slice)[1] == 0){
-      # Missing days inbetween e.g. fips 31057 day 184 jumps to 189
-      print(paste("imputing for day ",toString(day)," of fips ",toString(fips),sep=""))
-      imputter <- fips.df[which(fips.df$days_from_start == day-1),]
-      # Change the date
-      imputter$days_from_start <- day
-      
-      imputter$datetime <- as.Date(imputter$datetime)+1
-      imputter$date <- as.Date(imputter$date)+1
-      # Append the data
-      fips.df<-rbind(fips.df,imputter)
-      county_data <- rbind(county_data,imputter)
-      #county_data[which(county_data$fips==fips & !is.na(county_data$rolled_cases) & county_data$days_from_start == day),] <- fips.df[which(fips.df$days_from_start == day),]
-    }
-    #fips.df[which(fips.df$days_from_start == day),"new_rolled_cases"] <- fips.df[which(fips.df$days_from_start == day),"rolled_cases"] - fips.df[which(fips.df$days_from_start == day-1),"rolled_cases"]
-  }
-  #county_data[which(county_data$fips==fips& !is.na(county_data$rolled_cases)),"new_rolled_cases"] <- fips.df[,"new_rolled_cases"]
-  
-}
-#break
-# Write intermediate result as processed_us-counties_latest.csv
-
-
-#write.csv(county_data,"../data/processed_us-counties_latest.csv",row.names=FALSE)
-
-
-# Slice away first 6 days
-
-
-county_data = county_data[complete.cases(county_data),]
-
-
-#start_date = min(county_data$datetime)
-#end_date = max(county_data$datetime)
-
-
-# Process county features
-
-
-county_features <- read.csv(file=file.path("../data/county_features.csv"))
-
-
-# Drop all "M_..." prefix
-
-
-county_features <- county_features[,which(!grepl("M_",names(county_features)))]
-
-
-# Convert -999 to NA
-
-
-county_features[county_features==-999] <-NA
-
-
-# DROP ST, STATE, ST_ABBR, COUNTY, LOCATION since we already have fips
-
-
-county_features <- county_features[, -which(names(county_features) %in% c("ST","STATE","ST_ABBR","COUNTY","LOCATION"))]
-
-
-names(county_features)[names(county_features)=="FIPS"] <- "fips"
-
-
-county_data_augmented <- merge(x=county_data, y=county_features, by="fips", all.x = TRUE)
-
-
+#df <- read_excel(CUSP, sheet=2, n_max=51)
 end_file = paste("../data/augmented_us-counties_latest",".csv",sep="")
 
-
-write.csv(county_data_augmented, end_file, row.names=FALSE)
-
-
-
-
-# Load CUSP Data
-
-
-#CUSP = paste("../data/COVID-19 US state policy database (CUSP)",".xlsx",sep="")
-
-CUSP = paste("../data/COVID-19 US state policy database 7_23_2021",".xlsx",sep="")
-
-# Pre-processing CUSP data
-
-#df <- read_excel(CUSP, sheet=2, n_max=51)
+county_data_augmented = read.csv(end_file)
 
 df <- read_excel(CUSP, sheet=1, skip=1, n_max=54)
 
@@ -413,3 +223,4 @@ write.csv(dataF, end_file, row.names=FALSE)
 
 
 closeAllConnections()
+

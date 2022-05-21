@@ -1,0 +1,3 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+46043,"Douglas","South Dakota",0.0741079721537218,3.91995318673821,0.0741079721537203,3.9199531867382,"2020-09-28",251,NA,0.0643911493165713,3.84221860404101,3.85193542687816,NA,NA,NA,NA,NA,NA
+46043,"Douglas","South Dakota",0.0953101798043172,4.1636788200967,0.0953101798043248,4.16367882009675,"2020-09-29",252,NA,0.0765743405610738,4.01379210615075,4.032527945394,0.0212022076505954,0.0212022076506045,0.0121831912445025,1,1,1
