@@ -49,8 +49,8 @@ cutofflist = (earliest_start+6):(latest_date)
 #cutofflist = (latest_date):(latest_date)
 
 
-for(cutoff in cutofflist){
-#foreach(cutoff = cutofflist) %dopar%{
+#for(cutoff in cutofflist){
+foreach(cutoff = cutofflist) %dopar%{
   
   
   #################################
