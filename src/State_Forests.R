@@ -85,8 +85,8 @@ counter <- 1
 
 
 #cutoff.list
-#foreach(cutoff = 51) %dopar%{
-for(cutoff in cutoff.list){
+foreach(cutoff = cutoff.list) %dopar%{
+#for(cutoff in cutoff.list){
   #################################
   # Skip file if it exists  
   check.file.name <- paste0("block_results_",toString(cutoff),".csv")
