@@ -30,7 +30,7 @@ county_data22 <- read.csv(nyt_url22)
 county_data <- rbind(rbind(county_data20,county_data21),county_data22)
 
 destfile <- paste("../data/us-counties_latest",".csv",sep="")
-county_data <- read.csv(nyt_url)
+#county_data <- read.csv(nyt_url)
 write.csv(county_data, destfile, row.names=FALSE)
 
 
