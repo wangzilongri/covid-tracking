@@ -17,11 +17,20 @@ setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
 # URL of NYTimes Data
-nyt_url <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"
+#nyt_url <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"
+nyt_url20 <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties-2020.csv"
+nyt_url21 <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties-2021.csv"
+nyt_url22 <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties-2022.csv"
+
+
+
+county_data20 <- read.csv(nyt_url20)
+county_data21 <- read.csv(nyt_url21)
+county_data22 <- read.csv(nyt_url22)
+county_data <- rbind(rbind(county_data20,county_data21),county_data22)
 
 
 destfile <- paste("../data/us-counties_latest",".csv",sep="")
-county_data <- read.csv(nyt_url)
 write.csv(county_data, destfile, row.names=FALSE)
 
 
