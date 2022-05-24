@@ -16,3 +16,6 @@ The backend workflow can be found in the ```WorkFlow.txt``` document.
 To reference, please cite our paper [Estimating County-Level COVID-19 Exponential Growth Rates Using Generalized Random Forests
 ](https://arxiv.org/abs/2011.01219).
 
+
+## Internal Use
+Update via ./src/log_update.sh
