@@ -187,10 +187,14 @@ for (cutoff in cutofflist){
     #test.df[which(test.df$state == "Washington"),"Predicted_Double_Days"]<- NA
     
     #test.df[which(test.df$state == "Missouri"),"Predicted_Double_Days"]<- NA
-      test.df[which(test.df$state == "Florida"),"Predicted_Double_Days"]<- NA
-      
+    test.df[which(test.df$state == "Florida"),"Predicted_Double_Days"]<- NA
+	#test.df[which(test.df$state == "North Carolina","Predicted")]    
+  
     test.df[which(test.df$fips == 48471),"Predicted_Double_Days"]<- NA
-    #test.df[which(test.df$fips == 2158),"Predicted_Double_Days"]<- NA
+    test.df[which(test.df$fips == 48209),"Predicted_Double_Days"]<-NA
+	#test.df[which(test.df$state == "Kansas"), "Predicted_Double_Days"] <- NA
+	
+	#test.df[which(test.df$fips == 2158),"Predicted_Double_Days"]<- NA
       # test.df[which(test.df$fips == 39155),"Predicted_Double_Days"]<- NA
       # test.df[which(test.df$fips == 48449),"Predicted_Double_Days"]<- NA
       # test.df[which(test.df$fips == 48365),"Predicted_Double_Days"]<- NA
