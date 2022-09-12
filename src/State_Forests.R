@@ -95,6 +95,7 @@ foreach(cutoff = cutoff.list) %dopar%{
   #################################
   # See if block is already in there
   # Block is numbered by last day in it
+  print(paste0("Computing GRF for ", toString(cutoff)))
   try({
     start_time <- Sys.time()
     # Given my current cutoff, which block numbers should I use?
@@ -108,7 +109,7 @@ foreach(cutoff = cutoff.list) %dopar%{
     shift <- (cutoff - first.block.cutoff)%%windowsize 
     data.cutoff.list <- c(seq(first.block.cutoff + shift, cutoff, windowsize))
     #data.cutoff.list <- c(seq(first.block.cutoff, cutoff, 1))
-    print(data.cutoff.list)
+    #print(data.cutoff.list)
     
     block.fullpath.list <- c()
     for (block.number in data.cutoff.list){

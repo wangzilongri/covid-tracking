@@ -37,7 +37,7 @@ notification = complete
 notify_user = zwang937@gatech.edu
 
 # If you need a specific amount of memory, uncomment the line below and change the number to the minimum amount of RAM you need for your job. This number is in megabytes.
-#request_memory=20480
+#request_memory=98304
 
 # if you need to run this more than once, enter the number of copies after the queue command
 # for every copy spawned, the variable $(process) will increment by one, starting at zero. 

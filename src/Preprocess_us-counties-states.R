@@ -259,6 +259,10 @@ gc()
 fwrite(county_data_augmented, file=end_file, row.names=FALSE)
 
 
+# TERMINATE EARLY
+
+stop()
+closeAllConnections()
 
 
 # Load CUSP Data
