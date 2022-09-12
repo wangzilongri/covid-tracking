@@ -1,3 +1,4 @@
+gc()
 closeAllConnections()
 list.of.packages <- c("ggplot2", "Rcpp", "grf", "caret", "mltools", "rpart", "minpack.lm", "doParallel", "rattle", "anytime","rlist")
 list.of.packages <- c(list.of.packages, "zoo", "dtw", "foreach", "evaluate","rlist","data.table")
@@ -15,7 +16,7 @@ lapply(list.of.packages, require, character.only = TRUE)
 # Set Working Directory to File source directory
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 source("county_analysis_lm.R")
-registerDoParallel(cores=detectCores())
+#registerDoParallel(cores=detectCores())
 
 
 # Load Data
@@ -23,10 +24,11 @@ registerDoParallel(cores=detectCores())
 
 destfile = paste("../data/augmented_us-counties-states_latest",".csv",sep="")
 
-
-county_data <- read.csv(file = destfile)
+county_data <- as.data.frame(fread(destfile))
+#county_data <- read.csv(file = destfile, nrows=3000000)
+county_data <- subset(county_data, rolled_cases >= 20)
 county_data$log_rolled_cases <- log(county_data$rolled_cases)
-county_data <- subset(county_data, log_rolled_cases >= log(20,exp(1)))
+#county_data <- subset(county_data, log_rolled_cases >= log(20,exp(1)))
 
 
 # note -1 to the actual windowsize here
@@ -42,13 +44,14 @@ latest_date = max(county_data$days_from_start)
 mainDir = "../data"
 subDir = paste("block_windowsize=",toString(windowsize+1),sep="")
 block_dir = file.path(mainDir, subDir)
-dir.create(block_dir)
+dir.create(block_dir, showWarnings = FALSE)
 
 
 cutofflist = (earliest_start+6):(latest_date)
+print(toString(latest_date))
 #cutofflist = (latest_date):(latest_date)
 
-
+print("Create Blocks")
 for(cutoff in cutofflist){
 #foreach(cutoff = cutofflist) %dopar%{
   
@@ -57,10 +60,13 @@ for(cutoff in cutofflist){
   # Skip file if it exists  
   check.file.name <- paste0("block_",toString(cutoff),".csv") 
   check.file.full.name <- file.path(block_dir, check.file.name) 
-  if (file.exists(check.file.full.name)){next}
+  if (file.exists(check.file.full.name)){
+    print(paste0(check.file.name," exists"))  
+    next
+  }
   #################################
-  
-  print(paste("Starting computation for cutoff=",toString(cutoff),sep=""))
+  gc() 
+  print(paste0("Computation for block cutoff=",toString(cutoff)))
   
   first<-cutoff-windowsize
   # Get rid of counties where there are less than 2 records so far
@@ -69,9 +75,9 @@ for(cutoff in cutofflist){
   restricted_state_df0 <- subset(restricted_state_df0,  fips %in% names(tt[tt>=2]) )
   
   # Get rid of counties that have less than 20 log_rolled_cases in the past 2 days
-  restricted_state_df0 <- subset(restricted_state_df0, days_from_start >= cutoff-1 & days_from_start <= cutoff)
-  tt <- table(restricted_state_df0$fips)
-  restricted_state_df0 <- subset(restricted_state_df0,  fips %in% names(tt[tt>=2]) )
+  #restricted_state_df0 <- subset(restricted_state_df0, days_from_start >= cutoff-1 & days_from_start <= cutoff)
+  #tt <- table(restricted_state_df0$fips)
+  #restricted_state_df0 <- subset(restricted_state_df0,  fips %in% names(tt[tt>=2]) )
   
   if(nrow(restricted_state_df0)==0){
     next
@@ -107,8 +113,9 @@ for(cutoff in cutofflist){
 
   
   block_file_path = file.path(block_dir, paste("block_",toString(cutoff),".csv",sep=""))
-  write.csv(Tmain,block_file_path,row.names=FALSE)
+  fwrite(Tmain,block_file_path,row.names=FALSE)
   print(paste("Finished writing block for cutoff=",toString(cutoff),setp=""))
+  gc()
 }
 
 

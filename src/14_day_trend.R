@@ -1,4 +1,4 @@
-list.of.packages <- c("ggplot2", "Rcpp", "grf", "caret", "mltools", "rpart", "minpack.lm", "doParallel", "rattle", "anytime")
+list.of.packages <- c("data.table","ggplot2", "Rcpp", "grf", "caret", "mltools", "rpart", "minpack.lm", "doParallel", "rattle", "anytime")
 list.of.packages <- c(list.of.packages, "zoo","usmap","readxl","lubridate")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
@@ -17,7 +17,7 @@ destfile <- paste("../data/us-counties_latest",".csv",sep="")
 #write.csv(county_data, destfile, row.names=FALSE)
 # Pre-processing the data
 
-county_data <- read.csv(file = destfile)
+county_data <- as.data.frame(fread(file = destfile))
 county_data$datetime <- as.Date(county_data$date)
 county_data$date <- as.Date(county_data$date)
 
@@ -125,7 +125,7 @@ county_14data <- reshape(county_14data,
 
 
 
-write.csv(county_14data,"../data/14_Day_Table.csv",row.names=FALSE)
+fwrite(county_14data,file="../data/14_Day_Table.csv",row.names=FALSE)
 
 
 closeAllConnections()

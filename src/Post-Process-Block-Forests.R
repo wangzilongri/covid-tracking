@@ -18,7 +18,7 @@ registerDoParallel(cores=detectCores())
 #########################################################
 
 destfile = paste("../data/processed_us-counties_latest_minus7",".csv",sep="")
-county_data <- read.csv(file = destfile)
+county_data <- as.data.frame(fread(file = destfile))
 county_data$date <- anytime::anydate(county_data$date)
 
 # DROP fips = NA 
@@ -29,7 +29,7 @@ end_date = max(county_data$days_from_start)
 #fips list
 
 fips.list.dest = "../data/fips-list.csv"
-fips.list.df <- read.csv(fips.list.dest)
+fips.list.df <- as.data.frame(fread(fips.list.dest))
 
 # Merge the two
 
@@ -93,7 +93,7 @@ for (cutoff in cutofflist){
   full.path <- file.path(backtest.folder,fname)
   
   
-  df <- read.csv(full.path)
+  df <- as.data.frame(fread(full.path))
   new.df <- df
   
   # We need to populate the entire table with fips even if they had no cases / predictions
@@ -115,7 +115,7 @@ for (cutoff in cutofflist){
   else{
     past.fname <- paste("block_results_",toString(cutoff-7),".csv",sep="")
     past.full.path <- file.path(backtest.folder,past.fname)
-    past.df <- read.csv(past.full.path)
+    past.df <- as.data.frame(fread(past.full.path))
     
     past.df$predicted.grf.past <- past.df$predicted.grf.future
     past.df$predicted.grf.past.0 <- past.df$predicted.grf.future.0
@@ -159,7 +159,7 @@ for (cutoff in cutofflist){
   # Write the csv
   results.fname <- paste("confusion_block_",toString(cutoff),".csv",sep="")
   results.fullpath <- file.path(confusion.block.folder,results.fname)
-  write.csv(test.df,results.fullpath,row.names=FALSE)
+  fwrite(test.df,results.fullpath,row.names=FALSE)
   
   #if (cutoff==114){
     #break
@@ -168,13 +168,13 @@ for (cutoff in cutofflist){
   if (cutoff == end_date){
     
     destfile <- paste("../data/14_Day_Table",".csv",sep="")
-    county_14data <- read.csv(file = destfile)
+    county_14data <- as.data.frame(fread(file = destfile))
     
     destfile <- paste("../data/30_Day_Table",".csv",sep="")
-    county_30check <- read.csv(file = destfile)
+    county_30check <- as.data.frame(fread(file = destfile))
     
     destfile <- paste("../data/augmented_us-counties-states_latest",".csv",sep="")
-    county_ActNow <- read.csv(file = destfile)
+    county_ActNow <- as.data.frame(fread(file = destfile))
     county_ActNow<-subset(county_ActNow,days_from_start==end_date)
     county_ActNow <- county_ActNow[, which(names(county_ActNow) %in% c("fips","metrics.testPositivityRatio","metrics.vaccinationsInitiatedRatio","metrics.vaccinationsCompletedRatio"))]
     
@@ -209,15 +209,15 @@ for (cutoff in cutofflist){
     
    final.df[which(final.df$d20 == 1),"Predicted_Double_Days"]<- NA
     
-   write.csv(final.df,"../data/output/file_to_plot/confusion_block_latest.csv",row.names=FALSE)
+   fwrite(final.df,"../data/output/file_to_plot/confusion_block_latest.csv",row.names=FALSE)
   }
 }
 
 # Write the mse
 
 
-write.csv(mse.table,paste("../data/output/block_mse_windowsize=",toString(windowsize),".csv",sep=""),row.names=FALSE)
+fwrite(mse.table,paste("../data/output/block_mse_windowsize=",toString(windowsize),".csv",sep=""),row.names=FALSE)
 
-write.csv(mape.table,paste("../data/output/block_mape_windowsize=",toString(windowsize),".csv",sep=""),row.names=FALSE)
+fwrite(mape.table,paste("../data/output/block_mape_windowsize=",toString(windowsize),".csv",sep=""),row.names=FALSE)
 
 closeAllConnections()

@@ -27,7 +27,7 @@ source("county_analysis(shifted).R")
 destfile = paste("../data/augmented_us-counties_latest",".csv",sep="")
 #destfile = paste("../data/county_features",".csv",sep="")
 
-county_data <- read.csv(file = destfile)
+county_data <- as.data.frame(fread(file = destfile))
 county_data$date <- anytime::anydate(county_data$date)
 county_data$log_rolled_cases <- log(county_data$rolled_cases)
 county_data <- subset(county_data, log_rolled_cases >= log(20,exp(1)))
@@ -61,11 +61,11 @@ cutofflist = (earliest_start+windowsize):latest_date
 
 
 destfile = file.path(mainDir,"mse_table.csv")
-performance.table0 <- read.csv(file = destfile)
+performance.table0 <- as.data.frame(fread(file = destfile))
 #performance.table0<-head(performance.table0,-7)
 
 #destfile = file.path(mainDir,"mape_table.csv")
-#mape.table0 <- read.csv(file = destfile)
+#mape.table0 <- as.data.frame(fread(file = destfile)
 #mape.table0<-head(mape.table0,-7)
 
 
@@ -172,36 +172,36 @@ for(cutoff in updatelist){
   backtest_file_path = file.path(backtest_dir, paste("allstates_",toString(cutoff),"_grf.csv",sep=""))
   #confusion_file_path = file.path(mainDir, "confusion", paste("confusion_allstates_",toString(cutoff),"_grf.csv",sep=""))
   
-  write.csv(restricted_state_df2,backtest_file_path,row.names=FALSE)
+  fwrite(restricted_state_df2,backtest_file_path,row.names=FALSE)
   # temp measure
-  #write.csv(restricted_state_df2,confusion_file_path,row.names=FALSE)
+  #fwrite(restricted_state_df2,confusion_file_path,row.names=FALSE)
 }
 
 performance.list <- list(cutoff=cutoff.list, lm.mse=lm.mse.list, slm.mse=slm.mse.list)
 performance.table1 <- as.data.frame(performance.list)
 
 destfile = file.path(mainDir,"mse_table.csv")
-performance.table0 <- read.csv(file = destfile)
+performance.table0 <- as.data.frame(fread(file = destfile))
 
 performance.table<- rbind(performance.table0,performance.table1)
 #performance.table<-performance.table %>% distinct()
 
 # discrepancy = restricted_state_df2[which(restricted_state_df2$lm.mse != restricted_state_df2$slm.mse),]
 
-write.csv(performance.table,file.path(mainDir,"mse_table.csv"),row.names=FALSE)
+fwrite(performance.table,file.path(mainDir,"mse_table.csv"),row.names=FALSE)
 
 mape.list <- list(cutoff=cutoff.list, lm.mape=lm.mape.list, slm.mape=slm.mape.list)
 mape.table1 <- as.data.frame(mape.list)
 # discrepancy = restricted_state_df2[which(restricted_state_df2$lm.mse != restricted_state_df2$slm.mse),]
 
 destfile = file.path(mainDir,"mape_table.csv")
-mape.table0 <- read.csv(file = destfile)
+mape.table0 <- as.data.frame(fread(file = destfile))
 
 mape.table<- rbind(mape.table0,mape.table1)
 #mape.table<-mape.table %>% distinct()
 
 
-write.csv(mape.table,file.path(mainDir,"mape_table.csv"),row.names=FALSE)
+fwrite(mape.table,file.path(mainDir,"mape_table.csv"),row.names=FALSE)
 
 
 closeAllConnections()

@@ -1,5 +1,5 @@
 list.of.packages <- c("ggplot2", "Rcpp", "grf", "caret", "mltools", "rpart", "minpack.lm", "doParallel", "rattle", "anytime")
-list.of.packages <- c(list.of.packages, "zoo","usmap","readxl","lubridate")
+list.of.packages <- c(list.of.packages, "zoo","usmap","readxl","lubridate","data.table")
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages, lib='/home/zwang937/local/R_libs', repos="http://cran.us.r-project.org", dependencies = TRUE, INSTALL_opts = '--no-lock')
@@ -17,7 +17,7 @@ destfile <- paste("../data/us-counties_latest",".csv",sep="")
 #write.csv(county_data, destfile, row.names=FALSE)
 # Pre-processing the data
 
-county_data <- read.csv(file = destfile)
+county_data <- as.data.frame(fread(file = destfile))
 county_data$datetime <- as.Date(county_data$date)
 county_data$date <- as.Date(county_data$date)
 
@@ -132,11 +132,11 @@ for (fips in fips_list){
   county_30data[which(county_30data$fips==fips),"d20"]<-as.numeric(isTRUE(dtest< -20))
 }
 
-write.csv(county_30data,"../data/30_Day_Check.csv",row.names=FALSE)
+fwrite(county_30data,"../data/30_Day_Check.csv",row.names=FALSE)
 
 final<-county_30data[, which(names(county_30data) %in% c("fips", "d20"))]
 
-write.csv(final,"../data/30_Day_Table.csv",row.names=FALSE)
+fwrite(final,"../data/30_Day_Table.csv",row.names=FALSE)
 
 
 closeAllConnections()

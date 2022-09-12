@@ -1,5 +1,5 @@
 list.of.packages <- c("ggplot2", "Rcpp", "grf", "caret", "mltools", "rpart", "minpack.lm", "doParallel", "rattle", "anytime")
-list.of.packages <- c(list.of.packages, "zoo","usmap","readxl","lubridate","tidyverse")
+list.of.packages <- c(list.of.packages, "zoo","usmap","readxl","lubridate","tidyverse","data.table")
 
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
@@ -24,19 +24,19 @@ nyt_url22 <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-
 
 
 
-county_data20 <- read.csv(nyt_url20)
-county_data21 <- read.csv(nyt_url21)
-county_data22 <- read.csv(nyt_url22)
+county_data20 <- as.data.frame(fread(nyt_url20))
+county_data21 <- as.data.frame(fread(nyt_url21))
+county_data22 <- as.data.frame(fread(nyt_url22))
 county_data <- rbind(rbind(county_data20,county_data21),county_data22)
 
 destfile <- paste("../data/us-counties_latest",".csv",sep="")
 #county_data <- read.csv(nyt_url)
-write.csv(county_data, destfile, row.names=FALSE)
+fwrite(county_data, file=destfile, row.names=FALSE)
 
 
 # URL of COVID Tracking Data
 track_url<-"https://covidtracking.com/data/download/all-states-history.csv"
-track_data<-read.csv(track_url)
+track_data<-as.data.frame(fread(track_url))
 
 # Pre-processing the data
 
@@ -44,7 +44,7 @@ track_data<-track_data[, !(names(track_data) %in% c("dataQualityGrade"))]
 track_data$date<-ymd(track_data$date)
 
 
-county_data <- read.csv(file = destfile)
+county_data <- as.data.frame(fread(file = destfile))
 county_data$datetime <- as.Date(county_data$date)
 county_data$date <- as.Date(county_data$date)
 
@@ -254,8 +254,9 @@ county_data_augmented <- merge(x=county_data, y=county_features, by="fips", all.
 
 end_file = paste("../data/augmented_us-counties_latest",".csv",sep="")
 
-
-write.csv(county_data_augmented, end_file, row.names=FALSE)
+rm(county_data)
+gc()
+fwrite(county_data_augmented, file=end_file, row.names=FALSE)
 
 
 
@@ -418,7 +419,7 @@ end_file = paste("../data/augmented_us-counties-states_latest",".csv",sep="")
 #end_file = paste("../data/processed_us-counties_latest",".csv",sep="")
 
 
-write.csv(dataF, end_file, row.names=FALSE)
+as.data.frame(fread(dataF, file=end_file, row.names=FALSE))
 
 
 closeAllConnections()

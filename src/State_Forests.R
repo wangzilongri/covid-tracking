@@ -25,7 +25,7 @@ registerDoParallel(cores=detectCores())
 destfile = paste("../data/augmented_us-counties_latest",".csv",sep="")
 
 
-county_data <- read.csv(file = destfile)
+county_data <- as.data.frame(fread(file = destfile))
 
 
 earliest_start = min(county_data$days_from_start)
