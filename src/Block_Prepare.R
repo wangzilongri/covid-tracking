@@ -16,7 +16,7 @@ lapply(list.of.packages, require, character.only = TRUE)
 # Set Working Directory to File source directory
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 source("county_analysis_lm.R")
-#registerDoParallel(cores=detectCores())
+registerDoParallel(cores=detectCores())
 
 
 # Load Data
@@ -52,8 +52,8 @@ print(toString(latest_date))
 #cutofflist = (latest_date):(latest_date)
 
 print("Create Blocks")
-for(cutoff in cutofflist){
-#foreach(cutoff = cutofflist) %dopar%{
+#for(cutoff in cutofflist){
+foreach(cutoff = cutofflist) %dopar%{
   
   
   #################################
@@ -62,7 +62,8 @@ for(cutoff in cutofflist){
   check.file.full.name <- file.path(block_dir, check.file.name) 
   if (file.exists(check.file.full.name)){
     print(paste0(check.file.name," exists"))  
-    next
+    gc()
+	next
   }
   #################################
   gc() 

@@ -6,6 +6,8 @@ executable = update_script.sh
 
 #requirements = (Machine == "isye-gpu1001.isye.gatech.edu")
 
+#requirements = (Machine == "isye-hpc0443.isye.gatech.edu")
+
 log = $ENV(HOME)/Condor/$(Cluster).log
 
 output = $ENV(HOME)/Condor/$(Cluster).$(process).out
@@ -18,7 +20,9 @@ notification = complete
 
 notify_user = zwang937@gatech.edu
 
-request_memory = 98304
+request_memory = 49600
+
+machine_count = 1
 
 request_cpus = 16
 
