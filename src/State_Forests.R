@@ -142,7 +142,7 @@ foreach(cutoff = cutoff.list) %dopar%{
     
     state.tau.hat <- predict(state.tau.forest, covariates.test.unique, estimate.variance = FALSE)$predictions
     #state.tau.hat <- unlist(state.tau.hat)
-    print(state.tau.hat)
+    #print(state.tau.hat)
     
     identifiers <- unique(covariates.test.unique[c("fips","log_rolled_cases.y")])
     E.log_rolled_cases <- c()
@@ -158,7 +158,7 @@ foreach(cutoff = cutoff.list) %dopar%{
     }
     state.t0.hat <- (E.log_rolled_cases - state.tau.hat*E.shifted_time)/(-state.tau.hat)
     
-    print(state.t0.hat)
+    #print(state.t0.hat)
    
     # Write down results
     results <- data.frame("fips"=identifiers[1],"log_rolled_cases.y"=identifiers[2],"days_from_start"=cutoff)

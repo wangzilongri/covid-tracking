@@ -57,7 +57,7 @@ for (fips in fips_list){
     next
   }
   for (day in (first.fips.date+1):last.fips.date){
-    print(day)
+    #print(day)
     county.day.slice <- fips.df[which(fips.df$days_from_start == day),]
     if (dim(county.day.slice)[1] == 0){
       # Missing days inbetween e.g. fips 31057 day 184 jumps to 189
