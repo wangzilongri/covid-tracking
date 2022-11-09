@@ -91,11 +91,11 @@ for (fips in fips_list){
     next
   }
   for (day in (first.fips.date+1):last.fips.date){
-    print(day)
+    #print(day)
     county.day.slice <- fips.df[which(fips.df$days_from_start == day),]
     if (dim(county.day.slice)[1] == 0){
       # Missing days inbetween e.g. fips 31057 day 184 jumps to 189
-      print(paste("imputing for day ",toString(day)," of fips ",toString(fips),sep=""))
+      #print(paste("imputing for day ",toString(day)," of fips ",toString(fips),sep=""))
       imputter <- fips.df[which(fips.df$days_from_start == day-1),]
       # Change the date
       imputter$days_from_start <- day
@@ -134,7 +134,7 @@ for (fips in fips_list){
     }
   county_data[which(county_data$fips==fips),"cases"] <- fips.df[,"active_cases"]
   
-  print(fips)
+  #print(fips)
 }
 
 
@@ -178,17 +178,17 @@ for (fips in present.fips.list){
   first.fips.date <- min(fips.df$days_from_start)
   last.fips.date <- max(fips.df$days_from_start)
   #fips.df[which(fips.df$days_from_start == first.fips.date),"new_rolled_cases"] <- fips.df[which(fips.df$days_from_start == first.fips.date),"rolled_cases"]
-  print(fips)
+  #print(fips)
   if(first.fips.date == last.fips.date){
     print(paste("fips ",toString(fips)," only has one entry ",sep=""))
     next
   }
   for (day in (first.fips.date+1):last.fips.date){
-    print(day)
+    #print(day)
     county.day.slice <- fips.df[which(fips.df$days_from_start == day),]
     if (dim(county.day.slice)[1] == 0){
       # Missing days inbetween e.g. fips 31057 day 184 jumps to 189
-      print(paste("imputing for day ",toString(day)," of fips ",toString(fips),sep=""))
+      #print(paste("imputing for day ",toString(day)," of fips ",toString(fips),sep=""))
       imputter <- fips.df[which(fips.df$days_from_start == day-1),]
       # Change the date
       imputter$days_from_start <- day

@@ -86,7 +86,7 @@ for (fips in present.fips.list){
     county.day.slice <- fips.df[which(fips.df$days_from_start == day),]
     if (dim(county.day.slice)[1] == 0){
       # Impute Missing days inbetween e.g. fips 31057 day 184 jumps to 189
-      print(paste("imputing for day ",toString(day)," of fips ",toString(fips),sep=""))
+      #print(paste("imputing for day ",toString(day)," of fips ",toString(fips),sep=""))
       imputter <- fips.df[which(fips.df$days_from_start == day-1),]
       # Change the date
       imputter$days_from_start <- day
