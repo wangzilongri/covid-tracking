@@ -100,7 +100,7 @@ for (fips in fips_list){
   }
   county_data[which(county_data$fips==fips),"cases"] <- fips.df[,"incident_cases"]
   
-  print(fips)
+  #print(fips)
 }
 
 

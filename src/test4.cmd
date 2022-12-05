@@ -20,7 +20,7 @@ notification = complete
 
 notify_user = zwang937@gatech.edu
 
-request_memory = 4096
+#request_memory = 409600
 
 machine_count = 1
 
