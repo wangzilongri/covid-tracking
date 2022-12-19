@@ -4,7 +4,7 @@ getenv = true
 
 executable = update_script.sh
 
-requirements = (Machine == "isye-gpu1001.isye.gatech.edu")
+#requirements = (Machine == "isye-gpu1001.isye.gatech.edu")
 
 #requirements = (Machine == "isye-hpc0443.isye.gatech.edu")
 
