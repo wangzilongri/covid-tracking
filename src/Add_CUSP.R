@@ -17,7 +17,7 @@ lapply(list.of.packages, require, character.only = TRUE)
 
 #CUSP = paste("../data/COVID-19 US state policy database (CUSP)",".xlsx",sep="")
 
-CUSP = paste("../data/COVID-19 US state policy database 3_20_2022",".xlsx",sep="")
+CUSP = paste("../data/COVID-19 US state policy database 3_30_2022",".xlsx",sep="")
 
 # Pre-processing CUSP data
 
