@@ -1,0 +1,2 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+38029,"Emmons","North Dakota",0.14004607364572,5.30350865017099,0.140046073645716,5.30350865017096,"2020-09-29",252,NA,0.100254938140815,4.98517956613175,5.02497070163665,NA,NA,NA,NA,NA,NA

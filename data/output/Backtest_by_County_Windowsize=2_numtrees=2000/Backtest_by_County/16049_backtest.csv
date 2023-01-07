@@ -1,0 +1,2 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+16049,"Idaho","Idaho",0.23454957628462,5.92444788852821,0.234549576284613,5.92444788852816,"2020-09-29",252,NA,0.100724146638189,4.85384445135677,4.98766988100319,NA,NA,NA,NA,NA,NA

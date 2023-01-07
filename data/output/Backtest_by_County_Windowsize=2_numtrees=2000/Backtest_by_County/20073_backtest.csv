@@ -1,0 +1,2 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+20073,"Greenwood","Kansas",-0.0133335308694651,2.96470144080389,0,3.05803615689015,"2020-09-29",252,NA,-0.0171816862863822,2.93391619746855,2.93776435288548,NA,NA,NA,NA,NA,NA

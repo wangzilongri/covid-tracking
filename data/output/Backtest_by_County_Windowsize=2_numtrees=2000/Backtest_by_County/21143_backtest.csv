@@ -1,0 +1,2 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+21143,"Lyon","Kentucky",0.030305349495327,3.56953220547105,0.0303053494953267,3.56953220547105,"2020-09-29",252,NA,0.0354723084442409,3.61086787706237,3.60570091811345,NA,NA,NA,NA,NA,NA

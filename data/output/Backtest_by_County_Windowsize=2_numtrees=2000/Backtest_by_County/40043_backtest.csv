@@ -1,0 +1,2 @@
+"fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
+40043,"Dewey","Oklahoma",0.0465200156348938,3.95567906353526,0.0465200156348926,3.95567906353525,"2020-09-29",252,NA,0.0476188297422515,3.96446957639412,3.96337076228676,NA,NA,NA,NA,NA,NA
