@@ -1,5 +1,5 @@
 gc()
-closeAllConnections()
+#closeAllConnections()
 list.of.packages <- c("ggplot2", "Rcpp", "grf", "caret", "mltools", "rpart", "minpack.lm", "doParallel", "rattle", "anytime","rlist")
 list.of.packages <- c(list.of.packages, "zoo", "dtw", "foreach", "evaluate","rlist","data.table")
 
@@ -63,7 +63,7 @@ foreach(cutoff = cutofflist) %dopar%{
   if (file.exists(check.file.full.name)){
     print(paste0(check.file.name," exists"))  
     gc()
-	next
+	stop()
   }
   #################################
   gc() 
@@ -81,7 +81,7 @@ foreach(cutoff = cutofflist) %dopar%{
   #restricted_state_df0 <- subset(restricted_state_df0,  fips %in% names(tt[tt>=2]) )
   
   if(nrow(restricted_state_df0)==0){
-    next
+    stop()
   }
   
   restricted_state_df <- subset(restricted_state_df0, days_from_start >= first & days_from_start <= cutoff)

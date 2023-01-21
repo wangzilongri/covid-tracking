@@ -34,4 +34,4 @@ git add ../data
 git commit -m "Update $(date +'%Y-%m-%d')"
 git push
 
-killall R
+#killall R

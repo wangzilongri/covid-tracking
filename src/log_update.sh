@@ -1,1 +1,1 @@
-./update_script.sh 2>&1 | tee "~/logs/covid_log.txt"
+./update_script.sh 2>&1 | tee ~/logs/covid_log.txt
