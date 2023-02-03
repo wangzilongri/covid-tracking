@@ -21,7 +21,7 @@ source("county_analysis(shifted).R")
 #registerDoParallel(cores=detectCores())
 
 
-
+print("Beginning Specific_Cases.R")
 # Load Data
 
 destfile = paste("../data/augmented_us-counties_latest",".csv",sep="")
@@ -150,9 +150,9 @@ for(cutoff in updatelist){
     slm.mape.list <- c(slm.mape.list, mean(restricted_state_df2$slm.mape))
     
     
-    print(paste("cutoff=",toString(cutoff)," slm.mse=", toString(mean(restricted_state_df2$slm.mse)),
-                " lm.mse=",toString(mean(restricted_state_df2$lm.mse))," slm.mape=", toString(mean(restricted_state_df2$slm.mape)),
-                " lm.mape=",toString(mean(restricted_state_df2$lm.mape)),sep=""))
+    #print(paste("cutoff=",toString(cutoff)," slm.mse=", toString(mean(restricted_state_df2$slm.mse)),
+    #            " lm.mse=",toString(mean(restricted_state_df2$lm.mse))," slm.mape=", toString(mean(restricted_state_df2$slm.mape)),
+    #            " lm.mape=",toString(mean(restricted_state_df2$lm.mape)),sep=""))
     
     
   }

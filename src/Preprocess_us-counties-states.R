@@ -14,7 +14,7 @@ lapply(list.of.packages, require, character.only = TRUE)
 
 
 #registerDoParallel(cores=6)
-
+print("Beginning Preprocess_us-counties-states.R")
 
 # URL of NYTimes Data
 #nyt_url <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties.csv"

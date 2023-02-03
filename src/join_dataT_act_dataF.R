@@ -7,11 +7,15 @@ if(length(new.packages)) install.packages(new.packages, lib='/home/zwang937/loca
 # Will need to add custom installation folder for servers without admin access
 lapply(list.of.packages, require, character.only = TRUE) 
 
+print("Beginning join_dataT_act_dataF.R")
 
 dataT = as.data.frame(fread("../data/dataT.csv"))
 act_dataF = as.data.frame(fread("../data/act_dataF.csv"))
 
 dataF<-join(x=dataT, y=act_dataF, by = c("fips","date"), type="left")
+
+#dataF <- dataF[]
+dataF <- dataF[order(dataF$date, dataF$fips),]
 
 end_file = paste("../data/augmented_us-counties-states_latest",".csv",sep="")
 

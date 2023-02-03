@@ -20,7 +20,7 @@ registerDoParallel(cores=detectCores())
 
 
 # Load Data
-
+print("Beginning Block_Prepare.R")
 
 destfile = paste("../data/augmented_us-counties-states_latest",".csv",sep="")
 

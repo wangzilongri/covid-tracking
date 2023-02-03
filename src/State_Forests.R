@@ -21,6 +21,7 @@ registerDoParallel(cores=detectCores())
 
 # Obtain the latest data to see how many dates there are
 
+print("Beginning State_Forests.R")
 
 destfile = paste("../data/augmented_us-counties_latest",".csv",sep="")
 

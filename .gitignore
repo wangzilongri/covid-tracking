@@ -7,6 +7,7 @@ __pycache__
 **/processed_us-counties_latest_minus7.csv
 **/us-counties_latest.csv
 **/inherited_augmented.csv
+**/act_data.csv
 **/14_Day_Table.csv
 **/dataT.csv
 **/act_dataF.csv
