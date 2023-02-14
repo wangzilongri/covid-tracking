@@ -16,7 +16,8 @@ lapply(list.of.packages, require, character.only = TRUE)
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-registerDoParallel(cores=min(c(detectCores(),40)))
+#registerDoParallel(cores=min(c(detectCores(),40)))
+registerDoParallel(cores=min(c(detectCores())))
 print(paste0("There are ",toString(detectCores())," cores"))
 #break
 # Obtain the latest data to see how many dates there are
@@ -60,7 +61,9 @@ for (cutoff in cutoff.list){
 }
 num_trees=100
 cutoff.list <- first.block.cutoff:(latest_date)
-cutoff.list <- 231:latest_date
+#cutoff.list <- 801:latest_date
+cutoff.list <- 500:700
+#cutoff.list <- 231:800
 #cutoff.list <- latest_date:latest_date
 # Main loop, parallelize later
 
@@ -130,10 +133,11 @@ foreach(cutoff = (cutoff.list)) %:%
     # Given my current cutoff, which block numbers should I use?
 	print(paste0("Computing GRF for cutoff=", toString(cutoff)," fips=",toString(fips_code)))
 	shift <- (cutoff - first.block.cutoff)%%windowsize 
-	data.cutoff.list <- c(seq(first.block.cutoff + shift, cutoff, windowsize))
+	starting_block_index = max(first.block.cutoff, cutoff-300)
+	data.cutoff.list <- c(seq(starting_block_index + shift, cutoff, windowsize))
 
 	#print(data.cutoff.list)
-	indices = data.cutoff.list - first.block.cutoff + 1
+	indices = data.cutoff.list - starting_block_index + 1
 	#print(indices)
 
 	#cutoff_subsetted_df_list <- sapply(indices, function(x) df.list[[x]]) 

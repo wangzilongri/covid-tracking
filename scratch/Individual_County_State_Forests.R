@@ -16,7 +16,8 @@ lapply(list.of.packages, require, character.only = TRUE)
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-registerDoParallel(cores=min(c(detectCores(),40)))
+#registerDoParallel(cores=min(c(detectCores(),40)))
+registerDoParallel(cores=min(c(detectCores(),50)))
 print(paste0("There are ",toString(detectCores())," cores"))
 #break
 # Obtain the latest data to see how many dates there are
@@ -60,7 +61,7 @@ for (cutoff in cutoff.list){
 }
 num_trees=100
 cutoff.list <- first.block.cutoff:(latest_date)
-cutoff.list <- 231:latest_date
+#cutoff.list <- 801:latest_date
 cutoff.list <- 231:800
 #cutoff.list <- latest_date:latest_date
 # Main loop, parallelize later

@@ -32,8 +32,8 @@ Rscript "MAPE_Plot.R"
 #12
 Rscript "county_plot.R"
 
-#git add ../data
-#git commit -m "Update $(date +'%Y-%m-%d')"
-#git push
+git add ../data
+git commit -m "Update $(date +'%Y-%m-%d')"
+git push
 
 #killall R

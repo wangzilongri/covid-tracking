@@ -16,3 +16,5 @@ __pycache__
 **/dataT.csv
 **/act_dataF.csv
 *.rds
+
+individual_county_backtest_state_forests_windowsize=2/

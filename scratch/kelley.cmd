@@ -2,11 +2,11 @@ universe = vanilla
 
 getenv = true
 
-executable = individual_county_grf.sh
+executable = individual_county_grf_condor.sh
 
 #requirements = (Machine == "isye-gpu1001.isye.gatech.edu")
 
-#requirements = (Machine == "isye-hpc0443.isye.gatech.edu")
+#requirements = (Machine == "isye-hpc0421.isye.gatech.edu")
 
 log = $ENV(HOME)/Condor/$(Cluster).log
 
@@ -22,6 +22,6 @@ notify_user = zwang937@gatech.edu
 
 request_memory = 40960
 
-request_cpus = 16
+#request_cpus = 60
 
 queue
