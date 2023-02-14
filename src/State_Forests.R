@@ -72,14 +72,17 @@ outputfolder = file.path(mainDir, subDir)
 
 dir.create(outputfolder, showWarnings = FALSE)
 
+grf.subfolder = paste("grf_windowsize=",toString(windowsize),"_numtrees=",toString(num_trees),sep="")
+grf.outputfolder = file.path(mainDir,grf.subfolder)
+dir.create(grf.outputfolder, showWarnings = FALSE)
 
 #cutoff.list <- 120:120
 
 
 counter <- 1
 
-
-
+# For feature importance
+#cutoff.list = c(68,83,98,113,128,143,158,173,188,203,218,233,300,346,400,500,550,578,593)
 
 #cutofflist=earliest_start:latest_date
 #cutofflist = (latest_date):(latest_date)
@@ -90,9 +93,14 @@ foreach(cutoff = cutoff.list) %dopar%{
 #for(cutoff in cutoff.list){
   #################################
   # Skip file if it exists  
-  check.file.name <- paste0("block_results_",toString(cutoff),".csv")
-  check.file.full.name <- file.path(outputfolder, check.file.name) 
-  if (file.exists(check.file.full.name)){next}
+  #check.file.name <- paste0("block_results_",toString(cutoff),".csv")
+  #check.file.full.name <- file.path(outputfolder, check.file.name) 
+  check.file.name <- paste0("grf_stateforest_cutoff=", toString(cutoff), ".rds")
+  check.file.full.name <- file.path(grf.outputfolder, check.file.name)
+  if (file.exists(check.file.full.name)){
+	print(paste0(check.file.name, " exists, skipping"))
+	next
+  }
   #################################
   # See if block is already in there
   # Block is numbered by last day in it
@@ -130,7 +138,11 @@ foreach(cutoff = cutoff.list) %dopar%{
     #covariates <- unique(covariates)
     
     state.tau.forest <- grf::causal_forest(X=covariates, Y=outcome, W= treatment, num.trees = num_trees)
-    
+	# Save Forest
+	tau.forest.fname <- paste("grf_stateforest_cutoff=",toString(cutoff),".rds",sep="")
+    tau.forest.path <- file.path(grf.outputfolder,tau.forest.fname)
+	saveRDS(state.tau.forest, tau.forest.path)   	
+ 
     exclusion.test <- c("shifted_log_rolled_cases","new_rolled_cases","datetime","State_FIPS_Code","county","state","shifted_time")
     
     current.block <- read.csv(file.path(block.folder, paste("block_",toString(cutoff),".csv",sep="")))
@@ -184,14 +196,12 @@ foreach(cutoff = cutoff.list) %dopar%{
     time_taken <- end_time - start_time
     
     print(paste("Time taken for cutoff=",toString(cutoff)," is ",toString(time_taken),sep=""))
-    
-    if (counter >= 10){
-      
-      #break
-    }
-    #break
-    counter <- counter + 1
-    #return(NULL)
+    rm(results)
+	rm(outcome)
+	rm(treatment)
+	rm(state.tau.forest)
+	rm(covariates)
+	gc() 
   })
   #break
 }
