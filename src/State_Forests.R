@@ -16,7 +16,7 @@ lapply(list.of.packages, require, character.only = TRUE)
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-registerDoParallel(cores=detectCores())
+registerDoParallel(min(cores=detectCores(), 20))
 
 
 # Obtain the latest data to see how many dates there are
@@ -89,7 +89,7 @@ counter <- 1
 
 
 #cutoff.list
-foreach(cutoff = cutoff.list) %dopar%{
+foreach(cutoff = rev(cutoff.list)) %dopar%{
 #for(cutoff in cutoff.list){
   #################################
   # Skip file if it exists  
