@@ -46,21 +46,21 @@ df.sort_values(by=["week_ending","usa_or_hhsregion","variant"], inplace=True, as
 df.head(30)
 
 
-# In[3]:
+# In[ ]:
 
 
 unique_dates = pd.unique(df["week_ending"])
 unique_dates
 
 
-# In[4]:
+# In[ ]:
 
 
 unique_regions = pd.unique(df["usa_or_hhsregion"])
 unique_regions
 
 
-# In[5]:
+# In[ ]:
 
 
 unique_variants = sorted(pd.unique(df["variant"]))
@@ -69,7 +69,7 @@ unique_variants
 
 # ### Multiple Published Reports of `share` per `date`, `hhs_region`, `variant`. Keep by latest `publication_date`
 
-# In[6]:
+# In[ ]:
 
 
 df_latest = df.sort_values('published_date', ascending=False).groupby(["week_ending","usa_or_hhsregion","variant"]).first().reset_index()
@@ -78,7 +78,7 @@ df_latest
 
 # ### Impute missing variants for each date and region, setting their share to 0
 
-# In[7]:
+# In[ ]:
 
 
 #df_imputed = pd.DataFrame(columns=["date", "hhs_region", "variant"])
@@ -100,7 +100,7 @@ df_imputed
 
 # ### Normalize the shares
 
-# In[8]:
+# In[ ]:
 
 
 df_imputed_select = df_imputed[["date", "hhs_region", "variant", "share"]]
@@ -116,7 +116,7 @@ df_imputed_select
 
 # ### Verify that for each date, all the present variants sum up to 100%
 
-# In[9]:
+# In[ ]:
 
 
 for date in unique_dates:
@@ -130,7 +130,7 @@ for date in unique_dates:
 
 # ### For each date, for each HHS region, take the latest `published_date` if there are duplicates of a variant
 
-# In[10]:
+# In[ ]:
 
 
 for date in unique_dates:
@@ -144,13 +144,13 @@ for date in unique_dates:
 
 # ### HHS to State Mapping
 
-# In[11]:
+# In[ ]:
 
 
 df_imputed_select
 
 
-# In[12]:
+# In[ ]:
 
 
 hhs_data_path = "../data/hhs_regions.csv"
@@ -158,7 +158,7 @@ hhs_df = pd.read_csv(hhs_data_path, low_memory=False)
 hhs_region_state_df = hhs_df[["region_number", "state_or_territory"]]
 
 
-# In[13]:
+# In[ ]:
 
 
 df_variant_share_by_state = pd.merge(left=df_imputed_select, right=hhs_region_state_df, how='left', left_on="hhs_region", right_on="region_number")
@@ -169,7 +169,7 @@ df_variant_share_by_state = df_variant_share_by_state.pivot_table(index=["date",
 df_variant_share_by_state.to_csv("../data/normalized_variant_share_by_date_and_state.csv", index=False)
 
 
-# In[14]:
+# In[ ]:
 
 
 df_variant_share_by_state
@@ -177,7 +177,7 @@ df_variant_share_by_state
 
 # ### State to County Mapping
 
-# In[15]:
+# In[ ]:
 
 
 fips_list_path = "../data/fips-list.csv"
@@ -185,7 +185,7 @@ fips_list = pd.read_csv(fips_list_path, low_memory=False)
 fips_list
 
 
-# In[16]:
+# In[ ]:
 
 
 df_variant_share_by_fips = pd.merge(left=fips_list, right=df_variant_share_by_state, how='left', on="state")
@@ -195,14 +195,14 @@ df_variant_share_by_fips
 
 # ### Fill in the missing days in between every 2 weeks with the previous week's values
 
-# In[17]:
+# In[ ]:
 
 
 date_range = pd.date_range(unique_dates[0],unique_dates[-1])
 unique_fips = pd.unique(df_variant_share_by_fips["fips"])
 
 
-# In[18]:
+# In[ ]:
 
 
 df_dates = pd.DataFrame({"date":date_range})
@@ -220,19 +220,20 @@ COVID_Variants_Normalized_Share_All_Dates_FIPS
 
 # ### Obtain Dates of Project
 
-# In[19]:
+# In[ ]:
 
 
 dataF_path = "../data/augmented_us-counties-states_latest.csv"
 dataF = pd.read_csv(dataF_path, low_memory=False)
 dataF["date"] = pd.to_datetime(dataF["date"])
-dataF
+
+newer_augmented_path = "../data/augmented_us-counties-states_latest_variants.csv"
 
 
 # ### Back Fill from Beginning of Variants Dataset to Start of Project Date
 # 
 
-# In[20]:
+# In[ ]:
 
 
 project_start_date = dataF["date"].min()
@@ -243,7 +244,7 @@ backfill_date_range = pd.date_range(project_start_date, COVID_variants_end_date)
 backfill_date_range
 
 
-# In[21]:
+# In[ ]:
 
 
 df_backfill_dates = pd.DataFrame({"date":backfill_date_range})
@@ -258,7 +259,7 @@ df_backfilled_COVID_Variants_Normalized_Share_All_Dates_FIPS
 
 # ### Forward Fill from End of Variants Dataset to Current Date
 
-# In[22]:
+# In[ ]:
 
 
 current_date = dataF["date"].max()
@@ -268,7 +269,7 @@ forwardfill_date_range = pd.date_range(project_start_date, current_date)
 forwardfill_date_range
 
 
-# In[23]:
+# In[ ]:
 
 
 df_forwardfill_dates = pd.DataFrame({"date":forwardfill_date_range})
@@ -284,11 +285,11 @@ df_ffill_bfill_COVID_Variants_Normalized_Share_All_Dates_FIPS
 
 # ### Merge with `augmented_us-counties-states_latest.csv`
 
-# In[24]:
+# In[ ]:
 
 
-augmented_us = pd.merge(left=dataF, right=df_ffill_bfill_COVID_Variants_Normalized_Share_All_Dates_FIPS, on=["date","fips"], how="left")
-augmented_us.to_csv(dataF_path, index=False)
+augmented_us = pd.merge(left=dataF, right=df_ffill_bfill_COVID_Variants_Normalized_Share_All_Dates_FIPS, on=["date","fips","county","state"], how="left")
+augmented_us.to_csv(newer_augmented_path, index=False)
 augmented_us
 
 
