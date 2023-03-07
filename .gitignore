@@ -14,9 +14,11 @@ __pycache__
 **/processed_us-counties_latest_minus7.csv
 **/augmented_us-counties-states_latest_variants.csv
 **/us-counties_latest.csv
+**/inherited_augmented.csv
 **/14_Day_Table.csv
 **/dataT.csv
 **/act_dataF.csv
+**/act_data.csv
 *.rds
 
 individual_county_backtest_state_forests_windowsize=2/
