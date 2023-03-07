@@ -14,10 +14,11 @@ lapply(list.of.packages, require, character.only = TRUE)
 
 # Load CUSP Data
 
-
+print("Beginning Add_CUSP.R")
 #CUSP = paste("../data/COVID-19 US state policy database (CUSP)",".xlsx",sep="")
 
-CUSP = paste("../data/COVID-19 US state policy database 3_30_2022 imputted",".xlsx",sep="")
+#CUSP = paste("../data/COVID-19 US state policy database 3_30_2022",".xlsx",sep="")
+CUSP = paste("../data/COVID-19 US state policy database 7_23_2021.xlsx")
 
 # Pre-processing CUSP data
 
@@ -32,7 +33,6 @@ names(df) <- gsub(" ","_",names(df))
 
 
 for(i in 1:length(names(df))){
-  print(df[3,i])
   if(df[3,i]=="date"){
     df[,i][df[,i]=="0"]<-"50000"
     df[,i]<-as.Date(as.numeric(unlist(df[,i])), origin="1899-12-30")
@@ -105,10 +105,18 @@ for (i in (length(cnames)+2):length(names(data))) {
 }
 gc()
 
+print("Writing intermediate data")
+
+fwrite(data, "../data/inherited_augmented.csv", row.names=FALSE)
+
 print("Loading Tracking Data")
 # URL of COVID Tracking Data
+try({
 track_url<-"https://covidtracking.com/data/download/all-states-history.csv"
 track_data<-as.data.frame(fread(track_url))
+fwrite(track_data, "../data/all-states-history.csv", row.names=FALSE)
+})
+track_data <-as.data.frame(fread("../data/all-states-history.csv"))
 
 # Pre-processing the data
 
@@ -127,25 +135,29 @@ gc()
 # DROP State_Abbreviation, state 
 dataT <- dataT[, -which(names(dataT) %in% c("State_Abbreviation"))]
 
-act_url<-"https://api.covidactnow.org/v2/counties.timeseries.csv?apiKey=e279791654264256bb7896d5a7b00e82"
-act_data<-as.data.frame(fread(act_url))
-
-act_data$date<-as.Date(act_data$date, "%Y-%m-%d")
-act_data <- act_data[, which(names(act_data) %in% c("date","fips","metrics.testPositivityRatio","metrics.vaccinationsInitiatedRatio","metrics.vaccinationsCompletedRatio"))]
 gc()
 
 
 end<-max(dataT$date)
 print("Writing dataT")
 fwrite(dataT, "../data/dataT.csv", row.names=FALSE)
-rm(dataT)
+#rm(dataT)
 gc()
 
 
 print("Forming act_data")
 
-act_url<-"https://api.covidactnow.org/v2/counties.timeseries.csv?apiKey=e279791654264256bb7896d5a7b00e82"
+API_KEY = "7fe2eb52bae04701b5cea514c19bad70"
+
+try({
+act_url<-paste0("https://api.covidactnow.org/v2/counties.timeseries.csv?apiKey=",API_KEY)
 act_data<-as.data.frame(fread(act_url))
+fwrite(act_data, "../data/act_data.csv", row.names=FALSE)
+})
+act_data <- as.data.frame(fread("../data/act_data.csv"))
+
+act_data$date<-as.Date(act_data$date, "%Y-%m-%d")
+act_data <- act_data[, which(names(act_data) %in% c("date","fips","metrics.testPositivityRatio","metrics.vaccinationsInitiatedRatio","metrics.vaccinationsCompletedRatio"))]
 
 act_data$date<-as.Date(act_data$date, "%Y-%m-%d")
 act_data <- act_data[, which(names(act_data) %in% c("date","fips","metrics.testPositivityRatio","metrics.vaccinationsInitiatedRatio","metrics.vaccinationsCompletedRatio"))]
@@ -188,11 +200,12 @@ for (fips in fips_list){
   #fips.df %>% mutate(fips.df[,"metrics.vaccinationsCompletedRatio"] = ifelse(fips.df[,"metrics.vaccinationsCompletedRatio"] > 1, 1, fips.df[,"metrics.vaccinationsCompletedRatio"]),
    #                  fips.df[,"metrics.vaccinationsInitiatedRatio"] = ifelse(fips.df[,"metrics.vaccinationsInitiatedRatio"] > 1, 1, fips.df[,"metrics.vaccinationsInitiatedRatio"]))
   
-  
-  if(fips.df[which(fips.df$date>=end),"metrics.vaccinationsInitiatedRatio"]==0){
-    fips.df[which(fips.df$date>=end),"metrics.vaccinationsInitiatedRatio"]<-NA
-    fips.df[which(fips.df$date>=end),"metrics.vaccinationsCompletedRatio"]<-NA
-  }
+  fips.df$metrics.vaccinationsInitiatedRatio[fips.df$date >= end & fips.df$metrics.vaccinationsInitiatedRatio == 0] <- NA
+  fips.df$metrics.vaccinationsCompletedRatio[fips.df$date >= end & fips.df$metrics.vaccinationsInitiatedRatio == 0] <- NA
+  #if(fips.df[which(fips.df$date>=end),"metrics.vaccinationsInitiatedRatio"]==0){
+  #  fips.df[which(fips.df$date>=end),"metrics.vaccinationsInitiatedRatio"]<-NA
+  #  fips.df[which(fips.df$date>=end),"metrics.vaccinationsCompletedRatio"]<-NA
+  #}
   
   #if(fips.df[,"metrics.vaccinationsInitiatedRatio"]>1){fips.df[,"metrics.vaccinationsInitiatedRatio"]<-1}
   #if(fips.df[,"metrics.vaccinationsCompletedRatio"]>1){fips.df[,"metrics.vaccinationsCompletedRatio"]<-1}

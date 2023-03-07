@@ -1,6 +1,6 @@
 closeAllConnections()
 list.of.packages <- c("ggplot2", "Rcpp", "grf", "caret", "mltools", "rpart", "minpack.lm", "doParallel", "rattle", "anytime","rlist")
-list.of.packages <- c(list.of.packages, "zoo", "dtw", "foreach", "evaluate","rlist","data.table","plyr")
+list.of.packages <- c(list.of.packages, "zoo", "dtw", "foreach", "evaluate","rlist","data.table","plyr","dplyr")
 
 
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
@@ -16,7 +16,7 @@ lapply(list.of.packages, require, character.only = TRUE)
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 
 
-registerDoParallel(cores=detectCores())
+registerDoParallel(cores=min(detectCores(), 10))
 
 
 # Obtain the latest data to see how many dates there are
@@ -89,7 +89,7 @@ counter <- 1
 
 
 #cutoff.list
-foreach(cutoff = cutoff.list) %dopar%{
+foreach(cutoff = (cutoff.list)) %dopar%{
 #for(cutoff in cutoff.list){
   #################################
   # Skip file if it exists  
@@ -135,6 +135,8 @@ foreach(cutoff = cutoff.list) %dopar%{
     exclusion <- c("shifted_log_rolled_cases","new_rolled_cases","datetime","State_FIPS_Code","county","state","log_rolled_cases.x","shifted_time")
     
     covariates <- (df[,-which(names(df) %in% exclusion)])
+	covariates <- mutate_all(covariates, function(x) as.numeric(as.character(x)))
+	covariates <- as.data.frame(covariates)	
     #covariates <- unique(covariates)
     
     state.tau.forest <- grf::causal_forest(X=covariates, Y=outcome, W= treatment, num.trees = num_trees)
@@ -152,8 +154,9 @@ foreach(cutoff = cutoff.list) %dopar%{
     
     final.day.cases <- covariates.test.unique$log_rolled_cases.x
     covariates.test.unique <- covariates.test.unique[,-which(names(covariates.test.unique) %in% c("log_rolled_cases.x"))]
+	covariates.test.unique <- mutate_all(covariates.test.unique, function(x) as.numeric(as.character(x)))
     
-    state.tau.hat <- predict(state.tau.forest, covariates.test.unique, estimate.variance = FALSE)$predictions
+    state.tau.hat <- predict(state.tau.forest, covariates.test.unique, estimate.variance = TRUE)$predictions
     #state.tau.hat <- unlist(state.tau.hat)
     #print(state.tau.hat)
     
