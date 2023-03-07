@@ -8,9 +8,11 @@ __pycache__
 **/COVID_Variants_Normalized_Share_All_Dates_FIPS.csv
 **/df_ffill_bfill_COVID_Variants_Normalized_Share_All_Dates_FIPS.csv
 
+
 **/augmented_us-counties_latest.csv
 **/augmented_us-counties-states_latest.csv
 **/processed_us-counties_latest_minus7.csv
+**/augmented_us-counties-states_latest_variants.csv
 **/us-counties_latest.csv
 **/14_Day_Table.csv
 **/dataT.csv
