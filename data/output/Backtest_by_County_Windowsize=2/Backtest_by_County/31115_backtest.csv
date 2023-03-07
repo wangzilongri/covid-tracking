@@ -1,2 +1,2 @@
 "fips","county","state","r.lm","predicted.lm","r.slm","predicted.slm","date.y","days_from_start.y","log_rolled_cases.y","tau.hat","predicted.grf.future.0","predicted.grf.future.last","D.r.lm","D.r.slm","D.tau.hat","B.D.r.lm","B.D.r.slm","B.D.tau.hat"
-31115,"Loup","Nebraska",0.0273989741881072,3.24309494402555,0.0273989741881113,3.24309494402558,"2021-10-13",631,3.0513021247088,0.0276514195306515,3.2451145067659,3.24486206142336,NA,NA,NA,NA,NA,NA
+31115,"Loup","Nebraska",0.0273989741881072,3.24309494402555,0.0273989741881113,3.24309494402558,"2021-10-13",631,3.0513021247088,0.0292942793989188,3.25825738571204,3.25636208050123,NA,NA,NA,NA,NA,NA

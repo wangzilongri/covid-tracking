@@ -89,7 +89,7 @@ counter <- 1
 
 
 #cutoff.list
-foreach(cutoff = rev(cutoff.list)) %dopar%{
+foreach(cutoff = (cutoff.list)) %dopar%{
 #for(cutoff in cutoff.list){
   #################################
   # Skip file if it exists  

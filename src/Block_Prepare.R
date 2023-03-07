@@ -16,7 +16,7 @@ lapply(list.of.packages, require, character.only = TRUE)
 # Set Working Directory to File source directory
 #setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
 source("county_analysis_lm.R")
-registerDoParallel(cores=detectCores())
+registerDoParallel(cores=detectCores(), 40)
 
 
 # Load Data
@@ -63,7 +63,7 @@ foreach(cutoff = cutofflist) %dopar%{
   if (file.exists(check.file.full.name)){
     print(paste0(check.file.name," exists"))  
     gc()
-	stop()
+	next
   }
   #################################
   gc() 
