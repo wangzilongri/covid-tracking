@@ -81,7 +81,7 @@ dir.create(confusion.block.folder, showWarnings=FALSE)
 
 
 mse.table <- data.frame("cutoff"=cutoff.start:end_date,"block.mse"=NA, "block.mse.0"=NA, "block.mse.last"=NA)
-
+mae.table <-data.frame("cutoff"=cutoff.start:end_date,"block.mae"=NA, "block.mae.0"=NA, "block.mae.last"=NA)
 mape.table <- data.frame("cutoff"=cutoff.start:end_date,"block.mape"=NA, "block.mape.0"=NA, "block.mape.last"=NA)
 
 cutofflist<-cutoff.start:end_date
@@ -133,6 +133,10 @@ for (cutoff in cutofflist){
     new.df[mask,"block.mse.0"] <- (new.df[mask,"log_rolled_cases.x.x"] - new.df[mask,"predicted.grf.past.0"])**2
     new.df[mask,"block.mse.last"] <- (new.df[mask,"log_rolled_cases.x.x"] - new.df[mask,"predicted.grf.past.last"])**2
     
+    new.df[mask,"block.mae"] <- abs( (new.df[mask,"log_rolled_cases.x.x"] - new.df[mask,"predicted.grf.past"]) )
+    new.df[mask,"block.mae.0"] <- abs( (new.df[mask,"log_rolled_cases.x.x"] - new.df[mask,"predicted.grf.past.0"]) )
+    new.df[mask,"block.mae.last"] <- abs( (new.df[mask,"log_rolled_cases.x.x"] - new.df[mask,"predicted.grf.past.last"]) )
+
     new.df[mask,"block.mape"] <- abs( (new.df[mask,"log_rolled_cases.x.x"] - new.df[mask,"predicted.grf.past"])/new.df[mask,"log_rolled_cases.x.x"] )
     new.df[mask,"block.mape.0"] <- abs( (new.df[mask,"log_rolled_cases.x.x"] - new.df[mask,"predicted.grf.past.0"])/new.df[mask,"log_rolled_cases.x.x"] )
     new.df[mask,"block.mape.last"] <- abs( (new.df[mask,"log_rolled_cases.x.x"] - new.df[mask,"predicted.grf.past.last"])/new.df[mask,"log_rolled_cases.x.x"] )
@@ -141,6 +145,10 @@ for (cutoff in cutofflist){
     mse.table[which(mse.table$cutoff==cutoff),"block.mse.0"] <- mean(na.omit(new.df[,"block.mse.0"]))
     mse.table[which(mse.table$cutoff==cutoff),"block.mse.last"] <- mean(na.omit(new.df[,"block.mse.last"]))
     
+    mae.table[which(mae.table$cutoff==cutoff),"block.mae"] <- mean(na.omit(new.df[,"block.mae"]))
+    mae.table[which(mae.table$cutoff==cutoff),"block.mae.0"] <- mean(na.omit(new.df[,"block.mae.0"]))
+    mae.table[which(mae.table$cutoff==cutoff),"block.mae.last"] <- mean(na.omit(new.df[,"block.mae.last"]))
+
     mape.table[which(mape.table$cutoff==cutoff),"block.mape"] <- mean(na.omit(new.df[,"block.mape"]))
     mape.table[which(mape.table$cutoff==cutoff),"block.mape.0"] <- mean(na.omit(new.df[,"block.mape.0"]))
     mape.table[which(mape.table$cutoff==cutoff),"block.mape.last"] <- mean(na.omit(new.df[,"block.mape.last"]))
@@ -189,6 +197,7 @@ for (cutoff in cutofflist){
     #test.df[which(test.df$state == "Missouri"),"Predicted_Double_Days"]<- NA
     test.df[which(test.df$state == "Florida"),"Predicted_Double_Days"]<- NA
     #test.df[which(test.df$state == "Puerto Rico"),"Predicted_Double_Days"]<-NA    
+    test.df[which(test.df$state == "Texas"),"Predicted_Double_Days"]<- NA
   	#test.df[which(test.df$state == "Nebraska"), "Predicted_Double_Days"]<-NA
     #test.df[which(test.df$fips == 4001),"Predicted_Double_Days"]<- NA
     #test.df[which(test.df$fips == 48417),"Predicted_Double_Days"]<-NA
@@ -217,7 +226,7 @@ for (cutoff in cutofflist){
 
 
 fwrite(mse.table,paste("../data/output/block_mse_windowsize=",toString(windowsize),".csv",sep=""),row.names=FALSE)
-
+fwrite(mae.table,paste("../data/output/block_mae_windowsize=",toString(windowsize),".csv",sep=""),row.names=FALSE)
 fwrite(mape.table,paste("../data/output/block_mape_windowsize=",toString(windowsize),".csv",sep=""),row.names=FALSE)
 
 closeAllConnections()
