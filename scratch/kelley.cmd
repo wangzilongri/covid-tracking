@@ -4,9 +4,9 @@ getenv = true
 
 executable = individual_county_grf_condor.sh
 
-#requirements = (Machine == "isye-gpu1001.isye.gatech.edu")
+#requirements = (Name == "isye-gpu1001.isye.gatech.edu")
 
-#requirements = (Machine == "isye-hpc0421.isye.gatech.edu")
+#requirements = (Name == "isye-hpc1219.isye.gatech.edu")
 
 log = $ENV(HOME)/Condor/$(Cluster).log
 

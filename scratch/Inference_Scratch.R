@@ -17,7 +17,7 @@ lapply(list.of.packages, require, character.only = TRUE)
 
 
 #registerDoParallel(cores=min(c(detectCores(),40)))
-registerDoParallel(cores=min(c(detectCores(),40)))
+registerDoParallel(cores=min(c(detectCores())))
 print(paste0("There are ",toString(detectCores())," cores"))
 #break
 # Obtain the latest data to see how many dates there are
@@ -61,7 +61,17 @@ for (cutoff in cutoff.list){
 }
 num_trees=100
 cutoff.list <- first.block.cutoff:(latest_date)
-cutoff.list <- 890:910
+
+args <- commandArgs(trailingOnly = TRUE)
+
+if (length(args) < 2){
+  start_arg <- earliest_start
+  end_arg <- latest_date
+} else{
+  start_arg <- as.numeric(args[1])
+  end_arg <- as.numeric(args[2])
+}
+cutoff.list <- start_arg:end_arg
 #cutoff.list <- 231:800
 #cutoff.list <- latest_date:latest_date
 # Main loop, parallelize later
@@ -70,12 +80,15 @@ cutoff.list <- 890:910
 
 
 mainDir = "../data/output"
-subDir = paste("individual_county_backtest_state_forests_windowsize=",toString(windowsize),sep="")
+#subDir = paste("individual_county_backtest_state_forests_windowsize=",toString(windowsize),sep="")
+subDir = "individual_county_backtest_by_cutoff"
+
 outputfolder = file.path(mainDir, subDir)
 
+grfDir = file.path(mainDir,"individual_county_grf_windowsize=2_numtrees=100")
 
 dir.create(outputfolder, showWarnings = FALSE)
-
+dir.create(grfDir, showWarnings = FALSE)
 
 #cutoff.list <- 120:120
 
@@ -95,6 +108,7 @@ counter <- 1
 county_fips_master <- fread("../data/county_fips_master.csv")
 fips_list = unique(county_fips_master$fips)
 
+print(paste0("cutoff.list is ",toString(cutoff.list[1]), " to ", toString(cutoff.list[length(cutoff.list)])))
 # Read all the blocks as data
 # Then we subset by cutoff and fips in each process
 # Subsetting and sequencing of blocks happens in each process
@@ -112,13 +126,23 @@ df.list <- mclapply(all_block_fnames_full_path, fread)
 cutoff_to_index_dict = setNames(seq_along(cutoff.list), cutoff.list)
 #print(cutoff_to_index_dict)
 print("Computing GRF for each fips x cutoff pair")
-foreach(cutoff = rev(cutoff.list)) %:%
+
+
+#cutoff.list = 51:1095
+#fips_list = fips_list[1:2]
+
+
+foreach(cutoff = (cutoff.list)) %:%
   foreach(fips_code = fips_list) %dopar% {
 #for(cutoff in cutoff.list){
+  output_subfolder_path = file.path(outputfolder, toString(cutoff))
+  dir.create(output_subfolder_path, showWarnings=FALSE)
+  fips_grf_subfolder_path = file.path(grfDir,toString(fips_code))
+  dir.create(fips_grf_subfolder_path, showWarnings= FALSE)
   #################################
   # Skip file if it exists  
   check.file.name <- paste0("block_results_fips=",toString(fips_code),"_",toString(cutoff),".csv")
-  check.file.full.name <- file.path(outputfolder, check.file.name) 
+  check.file.full.name <- file.path(output_subfolder_path, check.file.name) 
   if (file.exists(check.file.full.name)){
 	print(paste0(check.file.name," exists skipping"))
 	next
@@ -130,52 +154,23 @@ foreach(cutoff = rev(cutoff.list)) %:%
   tryCatch(expr={
     start_time <- Sys.time()
     # Given my current cutoff, which block numbers should I use?
-	print(paste0("Computing GRF for cutoff=", toString(cutoff)," fips=",toString(fips_code)))
-	shift <- (cutoff - first.block.cutoff)%%windowsize 
-	starting_block_index = max(first.block.cutoff, cutoff-300)
-	data.cutoff.list <- c(seq(starting_block_index + shift, cutoff, windowsize))
+	print(paste0("Loading GRF for cutoff=", toString(cutoff)," fips=",toString(fips_code)))
+    tau.forest.path <- file.path(fips_grf_subfolder_path, paste0("grf_individual_county_fips=",toString(fips_code),"_cutoff=",toString(cutoff),".rds"))
+    state.tau.forest <- readRDS(tau.forest.path)	
 
-	#print(data.cutoff.list)
-	indices = data.cutoff.list - starting_block_index + 1
-	#print(indices)
-
-	#cutoff_subsetted_df_list <- sapply(indices, function(x) df.list[[x]]) 
-	# REPLACE WITH PARALLEL APPLY
-	#cutoff_subsetted_df_list <- lapply(df.list, "[[", indices)
-	cutoff_subsetted_df = tibble()
-	for (index in indices){
-	  cutoff_subsetted_df = rbind(cutoff_subsetted_df, df.list[[index]])
-	}
-	#cutoff_subsetted_df <- do.call(rbind, cutoff_subsetted_df_list)
-	#print(typeof(cutoff_subsetted_df$fips))
-	#print(paste0("Dimensions of cutoff_subsetted_df for fips=",toString(fips_code)," cutoff=",toString(cutoff)," is ",toString(dim(cutoff_subsetted_df))))
-	fips_cutoff_subsetted_df <- as.data.frame(dplyr::filter(cutoff_subsetted_df, fips==fips_code))
-	#print(str(fips_cutoff_subsetted_df))
-	#print(paste0("Dimensions of fips_cutoff_subsetted_df for fips=",toString(fips_code)," cutoff=",toString(cutoff)," is ",toString(dim(fips_cutoff_subsetted_df))))
-	# Parallel Partition each block by fips in parallel 
-    #fips_list = unique(covariates$fips)	
-	treatment <- fips_cutoff_subsetted_df$shifted_time
-	outcome <- fips_cutoff_subsetted_df$shifted_log_rolled_cases
-
-	exclusion <- c("shifted_log_rolled_cases","new_rolled_cases","datetime","State_FIPS_Code","county","state","log_rolled_cases.x","shifted_time")
-
-	covariates <- (fips_cutoff_subsetted_df[,-which(names(fips_cutoff_subsetted_df) %in% exclusion)])
-	covariates <- mutate_all(covariates, function(x) as.numeric(as.character(x)))
-	covariates <- as.data.frame(covariates)	
-	
-	state.tau.forest <- grf::causal_forest(X=covariates, Y=outcome, W=treatment, num.trees = num_trees)
-	
 	exclusion.test <- c("shifted_log_rolled_cases","new_rolled_cases","datetime","State_FIPS_Code","county","state","shifted_time")
 	
-	#current.block <- read_csv(file.path(block.folder, paste("block_",toString(cutoff),".csv",sep="")))
-	current.block <- subset(fips_cutoff_subsetted_df, shifted_time==(windowsize-1))
+	current.block <- read_csv(file.path(block.folder, paste("block_",toString(cutoff),".csv",sep="")))
+	current.block <- subset(current.block, shifted_time==(windowsize-1))
+	# Test Block is the latest
+	# covariates.test <- current.block[,-which(names(current.block) %in% exclusion.test)]
 	covariates.test <- current.block[,-which(names(current.block) %in% exclusion.test)]
-	covariates.test.unique <- unique(covariates.test)
 	
+	covariates.test.unique <- subset(covariates.test, fips==fips_code)	
+	#covariates.test.unique <- unique(covariates.test)
 	final.day.cases <- covariates.test.unique$log_rolled_cases.x
 	covariates.test.unique <- covariates.test.unique[,-which(names(covariates.test.unique) %in% c("log_rolled_cases.x"))]
 	# Subset by fips
-	covariates.test.unique <- subset(covariates.test.unique, fips==fips_code)	
 	covariates.test.unique <- mutate_all(covariates.test.unique, function(x) as.numeric(as.character(x)))
 	state.tau.hat <- predict(state.tau.forest, covariates.test.unique, estimate.variance = TRUE)$predictions
 	#state.tau.hat <- unlist(state.tau.hat)
@@ -212,14 +207,14 @@ foreach(cutoff = rev(cutoff.list)) %:%
 	#results$log_rolled_cases.x <- (current.block[which(current.block$shifted_time==6),"log_rolled_cases.x"])
 	
 	output.fname = paste("block_results_fips=",toString(fips_code),"_",toString(cutoff),".csv",sep="")
-	destfolder = file.path(outputfolder,output.fname)
+	destfolder = file.path(output_subfolder_path,output.fname)
 	write.csv(results, destfolder, row.names=FALSE)
 	
 	end_time <- Sys.time()
 	
 	time_taken <- end_time - start_time
 	
-	print(paste("Time taken for fips=",toString(fips_code)," cutoff=",toString(cutoff)," is ",toString(time_taken),sep=""))
+	print(paste0("Time taken for fips=",toString(fips_code)," cutoff=",toString(cutoff)," is ",toString(time_taken), " results written to ", destfolder))
 	#rm(results)
 	#rm(state.tau.forest)	
 	#gc()
