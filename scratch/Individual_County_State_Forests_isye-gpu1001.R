@@ -62,6 +62,7 @@ for (cutoff in cutoff.list){
 num_trees=100
 cutoff.list <- first.block.cutoff:(latest_date)
 cutoff.list <- 801:latest_date
+cutoff.list <- 51:51
 #cutoff.list <- 231:800
 #cutoff.list <- latest_date:latest_date
 # Main loop, parallelize later
@@ -94,6 +95,8 @@ counter <- 1
 # Get list of fips from master fips
 county_fips_master <- fread("../data/county_fips_master.csv")
 fips_list = unique(county_fips_master$fips)
+
+fips_list = 38077:38077
 
 # Read all the blocks as data
 # Then we subset by cutoff and fips in each process
