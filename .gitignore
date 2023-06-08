@@ -24,5 +24,6 @@ __pycache__
 *.p
 
 scratch/*.csv
+scratch/**/*.csv
 
 individual_county_backtest_state_forests_windowsize=2/
