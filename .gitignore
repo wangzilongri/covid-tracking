@@ -20,5 +20,9 @@ __pycache__
 **/act_dataF.csv
 **/act_data.csv
 *.rds
+*.pickle
+*.p
+
+scratch/*.csv
 
 individual_county_backtest_state_forests_windowsize=2/
