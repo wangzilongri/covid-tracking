@@ -34,6 +34,16 @@ latest_date = max(county_data$days_from_start)
 
 
 windowsize = 2
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) >= 1) {
+  if (as.numeric(args[1]) >= 2){
+    windowsize <- as.numeric(args[1])
+  }
+}
+print(paste0("windowsize = ",toString(windowsize)))
+
+
+
 block.folder = paste("../data/block_windowsize=",toString(windowsize),sep="")
 
 
@@ -62,7 +72,7 @@ cutoff.list <- first.block.cutoff:latest_date
 #cutoff.list <- latest_date:latest_date
 # Main loop, parallelize later
 
-
+print(paste0("State_Forests.R latest_date is ",toString(latest_date)))
 
 
 mainDir = "../data/output"

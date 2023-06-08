@@ -21,13 +21,15 @@ lapply(list.of.packages, require, character.only = TRUE)
 nyt_url20 <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties-2020.csv"
 nyt_url21 <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties-2021.csv"
 nyt_url22 <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties-2022.csv"
-
+nyt_url23 <- "https://raw.githubusercontent.com/nytimes/covid-19-data/master/us-counties-2023.csv"
 
 
 county_data20 <- as.data.frame(fread(nyt_url20))
 county_data21 <- as.data.frame(fread(nyt_url21))
 county_data22 <- as.data.frame(fread(nyt_url22))
-county_data <- rbind(rbind(county_data20,county_data21),county_data22)
+county_data23 <- as.data.frame(fread(nyt_url23))
+county_data <- rbind(rbind(rbind(county_data20,county_data21),county_data22),county_data23)
+
 
 destfile <- paste("../data/us-counties_latest",".csv",sep="")
 #county_data <- read.csv(nyt_url)

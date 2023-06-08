@@ -4,11 +4,11 @@ Rscript "Preprocess_us-counties-states.R"
 Rscript "Add_CUSP.R"
 Rscript "join_dataT_act_dataF.R"
 
-jupyter nbconvert --to script ../scratch/impute_lon_lat_augmented.ipynb
-python ../scratch/impute_lon_lat_augmented.py
+#jupyter nbconvert --to script ../scratch/impute_lon_lat_augmented.ipynb
+python ./impute_lon_lat_augmented.py
 
-jupyter nbconvert --to script ../scratch/Add_COVID_Variants.ipynb
-python ../scratch/Add_COVID_Variants.py
+#jupyter nbconvert --to script ../scratch/Add_COVID_Variants.ipynb
+python ./Add_COVID_Variants.py
 
 
 Rscript "Specific_Cases.R"
