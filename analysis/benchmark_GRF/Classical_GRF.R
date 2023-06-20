@@ -111,7 +111,7 @@ foreach(cutoff = (cutoff.list)) %dopar%{
   check.file.full.name <- file.path(grf.outputfolder, check.file.name)
   if (file.exists(check.file.full.name)){
 	print(paste0(check.file.name, " exists, skipping"))
-	next
+	#next
   }
   #################################
   # See if block is already in there
@@ -146,8 +146,13 @@ foreach(cutoff = (cutoff.list)) %dopar%{
     
     #exclusion <- c("shifted_log_rolled_cases","fips","State_FIPS_Code","county","state","datetime","log_rolled_cases.x","shifted_time")
     exclusion <- c("shifted_log_rolled_cases","new_rolled_cases","datetime","State_FIPS_Code","county","state","log_rolled_cases.x","shifted_time")
-    
+    # Time Varying Exclusion
+    hhs_X_w_clusters = readr::read_csv("../benchmark_tcv_kmeans_code/hhs_X_w_clusters.csv")
+    time_varying_exclusion <- setdiff(names(df), names(hhs_X_w_clusters))
+
+      
     covariates <- (df[,-which(names(df) %in% exclusion)])
+    covariates <- (covariates[,-which(names(covariates) %in% time_varying_exclusion)])
 	covariates <- mutate_all(covariates, function(x) as.numeric(as.character(x)))
 	covariates <- as.data.frame(covariates)	
     #covariates <- unique(covariates)
@@ -163,6 +168,7 @@ foreach(cutoff = (cutoff.list)) %dopar%{
     current.block <- read.csv(file.path(block.folder, paste("block_",toString(cutoff),".csv",sep="")))
     current.block <- subset(current.block, shifted_time==(windowsize-1))
     covariates.test <- current.block[,-which(names(current.block) %in% exclusion.test)]
+    covariates.test <- covariates.test[,-which(names(current.block) %in% time_varying_exclusion)]            
     covariates.test.unique <- unique(covariates.test)
     
     final.day.cases <- covariates.test.unique$log_rolled_cases.x
@@ -173,7 +179,7 @@ foreach(cutoff = (cutoff.list)) %dopar%{
     #state.tau.hat <- unlist(state.tau.hat)
     #print(state.tau.hat)
     
-    identifiers <- unique(covariates.test.unique[c("fips","log_rolled_cases.y")])
+    identifiers <- unique(covariates.test.unique[c("fips","cutoff")])
     E.log_rolled_cases <- c()
     E.shifted_time <- c()
     nrows <- dim(identifiers)[1]
