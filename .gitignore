@@ -23,7 +23,11 @@ __pycache__
 *.pickle
 *.p
 
-scratch/*.csv
-scratch/**/*.csv
+analysis/*.csv
+analysis/**/*.csv
+
+**/.zip
+
+**/*.{100MB..}
 
 individual_county_backtest_state_forests_windowsize=2/
