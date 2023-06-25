@@ -27,6 +27,7 @@ analysis/*.csv
 analysis/**/*.csv
 
 **/*.zip
+**/*.dirlock
 
 **/*.{100MB..}
 
