@@ -63,6 +63,8 @@ start_day = min(augmented_panel_data$days_from_start)
 end_day = max(augmented_panel_data$days_from_start)
 
 # Set default values for start and end if less than 2 arguments are provided
+args <- commandArgs(trailingOnly = TRUE)
+
 if (length(args) >= 2) {
   start_day <- as.integer(args[1])
   end_day <- as.integer(args[2])
