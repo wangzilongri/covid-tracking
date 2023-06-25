@@ -28,7 +28,7 @@ outputfolder = file.path(mainDir, subDir)
 
 dir.create(outputfolder, showWarnings = FALSE)
 
-grf.subfolder = paste("time_variant_grf_grf_windowsize=",toString(windowsize),"_numtrees=",toString(num_trees),sep="")
+grf.subfolder = paste("time_variant_grf_windowsize=",toString(windowsize),"_numtrees=",toString(num_trees),sep="")
 grf.outputfolder = file.path(mainDir,grf.subfolder)
 dir.create(grf.outputfolder, showWarnings = FALSE)
 
@@ -81,7 +81,7 @@ foreach(cutoff = (cutoff_list)) %dopar%{
     check.file.name <- paste0("time_variant_grf_stateforest_cutoff=", toString(cutoff), ".rds")
     check.file.full.name <- file.path(grf.outputfolder, check.file.name)
     
-    backtest.check.file.name <- paste0("time_variant_grf_block_results_", toString(cutoff), ".rds")
+    backtest.check.file.name <- paste0("time_variant_grf_block_results_", toString(cutoff), ".csv")
     backtest.check.file.full.name <- file.path(outputfolder, backtest.check.file.name)
 
     if (file.exists(check.file.full.name) && file.exists(backtest.check.file.full.name)){
