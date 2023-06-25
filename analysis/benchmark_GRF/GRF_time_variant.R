@@ -84,7 +84,7 @@ foreach(cutoff = (cutoff_list)) %dopar%{
     backtest.check.file.name <- paste0("time_variant_grf_block_results_", toString(cutoff), ".rds")
     backtest.check.file.full.name <- file.path(outputfolder, backtest.check.file.name)
 
-    if (file.exists(check.file.full.name) && backtest.check.file.full.name){
+    if (file.exists(check.file.full.name) && file.exists(backtest.check.file.full.name)){
         print(paste0(check.file.name, " and ",  backtest.check.file.name, " exists, skipping"))
         next
     }
