@@ -53,9 +53,10 @@ pd.set_option('display.max_columns', None)
 
 def RollingOLS_by_fips(df, fips, window_size, overwrite=False):
     directory = "./Fixed_Window_dfs"
+    fname = "fixed_window_fips={}_wsize={}.csv".format(fips, window_size)
     os.makedirs(directory, exist_ok=True)
-    pickle_file = os.path.join(directory, "fixed_window_fips={}_wsize={}.pickle".format(fips, window_size))
-    if not os.path.exists(pickle_file) or overwrite:
+    csv_file = os.path.join(directory, fname)
+    if not os.path.exists(csv_file) or overwrite:
         try:
             print("Generating betas for fips={}, window_size={}".format(fips, window_size))
             input_df = df.copy()
@@ -64,20 +65,24 @@ def RollingOLS_by_fips(df, fips, window_size, overwrite=False):
 
             beta = RollingOLS(endog=input_df["log_rolled_cases"], exog=sm.add_constant(input_df["days_from_start"]), window=window_size).fit().params
             beta = beta.rename(columns={"days_from_start":"beta_wsize={}".format(window_size)})
-            data_tuple = (fips, window_size, pd.DataFrame(beta["beta_wsize={}".format(window_size)]))
-
+            beta_df = pd.DataFrame(beta["beta_wsize={}".format(window_size)])
+            beta_df["days_from_start"] = input_df["days_from_start"]
+            beta_df["fips"] = fips
+            beta_df = beta_df[["fips", "days_from_start","beta_wsize={}".format(window_size)]]
+            #data_tuple = (fips, window_size, )
+            beta_df.to_csv(csv_file, index=False)
             # Write the data to a pickle file
-            with open(pickle_file, "wb") as f:
-                pickle.dump(data_tuple, f)
+            #with open(pickle_file, "wb") as f:
+            #    pickle.dump(beta_df, f)
         except:
             print("Something went wrong for fips={}, window_size={}".format(fips, window_size))
             return
     else:
-        print("{} exists".format(pickle_file))
-        with open(pickle_file, "rb") as f:
-            data_tuple = pickle.load(f)
+        print("{} exists, skipping".format(csv_file))
+        #with open(pickle_file, "rb") as f:
+        #    beta_df = pickle.load(f)
     
-    return data_tuple
+    return
 
 
 # In[ ]:
@@ -86,46 +91,28 @@ if __name__ == "__main__":
 
     benchmark_TLGRF_dataset = dd.read_csv("../benchmark_TLGRF_dataset.csv", assume_missing=True).compute()
     benchmark_TLGRF_dataset["date"] = pd.to_datetime(benchmark_TLGRF_dataset["date"])
-
+    benchmark_TLGRF_dataset["fips"] = benchmark_TLGRF_dataset["fips"].astype(int)
+    benchmark_TLGRF_dataset["days_from_start"] = benchmark_TLGRF_dataset["days_from_start"].astype(int)
+    
     df = benchmark_TLGRF_dataset.copy()
     window_sizes = range(2,15)
     fips_list = df["fips"].unique()
     
+    fips_list = fips_list[2000:]
+    
     wsize_fips_list = list(itertools.product(fips_list, window_sizes))
 
 
-    with tqdm(total=len(window_sizes) * len(fips_list), desc="Processing") as pbar:
-        def update_progress(*args):
-            pbar.update()
-
-        beta_results = Parallel(n_jobs=-1)(delayed(RollingOLS_by_fips)(df, fips, window_size) for fips, window_size in wsize_fips_list)
-        pbar.close()
-
-
-    # In[92]:
-
-    print("Appending results per window size")
-    beta_result_dict = {window_size:[] for window_size in window_sizes}
-    for result in beta_results:
-        fips, window_size, beta_df = result
-        beta_result_dict[window_size].append(beta_df)
-
-    print("Concatenating results per window size")
-    concatenated_beta_result_dict = {}
-    for window_size, beta_df_list in beta_result_dict.items():
-        concatenated_beta_result_dict[window_size] = pd.concat(beta_df_list)
-
-    print("Merging each window size result")
-    beta_df_big = pd.DataFrame()
-    for window_size, big_beta_df in concatenated_beta_result_dict.items():
-        beta_col_name = big_beta_df.columns[0]
-        beta_df_big[beta_col_name] = big_beta_df
-
-    print("Merging wih original DF")
-    updated_df = pd.merge(df, beta_df_big, left_index=True, right_index=True, how="outer").sort_values(by=["fips", 'days_from_start'])
-
-    print("Writing Output")
-    updated_df.to_csv("TLGRF_w_Fixed_Windows.csv", index=False)
+    with tqdm(total=len(wsize_fips_list), desc="Processing") as pbar:
+        def process_task(df, fips, window_size):
+            # Perform the task
+            result = RollingOLS_by_fips(df, fips, window_size)
+            # Update the progress bar
+            pbar.update(1)
+            return result
+        
+        beta_results = Parallel(n_jobs=-1)(delayed(process_task)(df, fips, window_size) for fips, window_size in wsize_fips_list)
+    pbar.close()
 
 
 # In[ ]:
