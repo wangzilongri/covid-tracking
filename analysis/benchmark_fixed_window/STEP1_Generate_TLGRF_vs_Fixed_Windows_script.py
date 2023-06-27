@@ -89,16 +89,18 @@ def RollingOLS_by_fips(df, fips, window_size, overwrite=False):
 
 if __name__ == "__main__":
 
-    benchmark_TLGRF_dataset = dd.read_csv("../benchmark_TLGRF_dataset.csv", assume_missing=True).compute()
-    benchmark_TLGRF_dataset["date"] = pd.to_datetime(benchmark_TLGRF_dataset["date"])
-    benchmark_TLGRF_dataset["fips"] = benchmark_TLGRF_dataset["fips"].astype(int)
-    benchmark_TLGRF_dataset["days_from_start"] = benchmark_TLGRF_dataset["days_from_start"].astype(int)
+    augmented_df = dd.read_csv("../../data/augmented_us-counties_latest.csv", assume_missing=True).compute()
+    augmented_df["date"] = pd.to_datetime(augmented_df["date"])
+    augmented_df["fips"] = augmented_df["fips"].astype(int)
+    augmented_df["days_from_start"] = augmented_df["days_from_start"].astype(int)
+    augmented_df["log_rolled_cases"] = np.log(augmented_df["rolled_cases"] + 1.1)
     
-    df = benchmark_TLGRF_dataset.copy()
-    window_sizes = range(2,15)
+    df = augmented_df.copy()
+    #window_sizes = range(2,15)
+    window_sizes = [10,11,12,13]
     fips_list = df["fips"].unique()
     
-    fips_list = fips_list[2000:]
+    #fips_list = fips_list[2000:]
     
     wsize_fips_list = list(itertools.product(fips_list, window_sizes))
 
