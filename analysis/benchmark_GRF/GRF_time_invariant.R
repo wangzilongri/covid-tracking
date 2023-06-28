@@ -92,14 +92,14 @@ foreach(cutoff = (cutoff_list)) %dopar%{
         start_time <- Sys.time()       
         # SLICE THE DATA ACCORDINGLY
         early_data <- augmented_panel_data[augmented_panel_data$days_from_start <= cutoff, ]
-        case_number_columns <- c("fips","date","county","state","days_from_start","log_rolled_cases", "shifted_days_from_start")
+        case_number_columns <- c("fips","date","county","state","days_from_start","log_rolled_cases", "days_from_start")
         early_data_case_numbers <- early_data[, names(early_data) %in% case_number_columns]
         # Format data to be fed to GRF
         WYX <- merge(early_data_case_numbers, X_time_invariant, by="fips", all.x=TRUE)
         WYX <- WYX[order(WYX$fips, WYX$days_from_start),]
         
         Y <- WYX$log_rolled_cases
-        W <- WYX$shifted_days_from_start
+        W <- WYX$days_from_start
         X <- WYX[, !names(WYX) %in% case_number_columns]
         
         cf <- causal_forest(X,Y,as.numeric(W), num.trees=num_trees)
@@ -116,7 +116,7 @@ foreach(cutoff = (cutoff_list)) %dopar%{
         r_GRF <- predict(cf, X_test)
         
         # Generate predictions
-        indexing_columns <- c("fips","county","state","date", "days_from_start","shifted_days_from_start", "rolled_cases", "log_rolled_cases")
+        indexing_columns <- c("fips","county","state","date", "days_from_start", "rolled_cases", "log_rolled_cases")
         indexing <- WYX_test[, names(WYX) %in% indexing_columns]
         indexing$r_GRF <- unlist(r_GRF)
         indexing$GRF_predicted_log_rolled_cases <- indexing$r_GRF*7 + indexing$log_rolled_cases
