@@ -1,5 +1,3 @@
-# README
+# Benchmarks for TLGRF with different weighting schemes ($\delta$)
 
-### What is this?
-
-Benchmarking code for different $\delta$ 
+Benchmarking code for different $\delta$. Refer to `Benchmark_Delta_TLGRF.ipynb`
