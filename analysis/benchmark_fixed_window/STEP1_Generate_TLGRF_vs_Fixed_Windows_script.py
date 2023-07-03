@@ -96,8 +96,8 @@ if __name__ == "__main__":
     augmented_df["log_rolled_cases"] = np.log(augmented_df["rolled_cases"] + 1.1)
     
     df = augmented_df.copy()
-    #window_sizes = range(2,15)
-    window_sizes = [10,11,12,13]
+    window_sizes = range(2,15)
+    #window_sizes = [3,4,5]
     fips_list = df["fips"].unique()
     
     #fips_list = fips_list[2000:]
