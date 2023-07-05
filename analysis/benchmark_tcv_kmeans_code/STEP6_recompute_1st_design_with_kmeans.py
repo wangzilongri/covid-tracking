@@ -421,7 +421,7 @@ def recompute_metrics(results_dict):
     
     results_dicts_tuple = list(results_dict.values())[0]
     
-    test_rmse_dict = results_dicts_tuple[2]
+    test_mse_dict = results_dicts_tuple[2]
     test_mae_dict = results_dicts_tuple[3]
     
     #starting = int(min(test_rmse_dict.keys()))
@@ -429,7 +429,7 @@ def recompute_metrics(results_dict):
     
     compiled_dict = {}
     for day in test_mae_dict.keys():
-        se = test_rmse_dict[day]**2 * n_samples_by_day[day]
+        se = test_mse_dict[day] * n_samples_by_day[day]
         ae = test_mae_dict[day] * n_samples_by_day[day]
         count = n_samples_by_day[day]
         
