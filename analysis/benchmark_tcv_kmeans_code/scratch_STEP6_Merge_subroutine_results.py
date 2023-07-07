@@ -11,6 +11,7 @@ import itertools
 import os
 import pickle
 import warnings
+import sys
 
 import matplotlib.dates as mdates
 import matplotlib.pyplot as plt
@@ -34,7 +35,6 @@ from sklearn.model_selection import train_test_split, cross_val_score
 
 from statsmodels.regression.rolling import RollingOLS
 
-#from tqdm.notebook import tqdm
 from tqdm import tqdm
 from collections import Counter
 from functools import reduce
@@ -48,27 +48,33 @@ warnings.filterwarnings("ignore", category=RuntimeWarning)
 
 # ### Generate/Load Merged Results
 
-# In[2]:
+# In[101]:
 
 
 ### Params
-REUSE_RESULTS = True
-K_list = list(range(1,21)) + list(range(100,3200,100)) + [3136]
+args = sys.argv
+script_name = args[0]  # The name of the script itself
+K_start = int(args[1])  # The first argument
+K_end = int(args[2]) # The end (inclusive)
+K_step = int(args[3]) # Step
+    
+K_list = list(range(K_start, K_end + K_step, K_step))
 #K_list = [1800]
 ### Directory to save/load merged best windows from
 merged_directory = "./merged_kmeans_tcv_validation"
 os.makedirs(merged_directory, exist_ok=True)
 ### Load in the datasets
-kmeans_tcv_validation_directory = "./kmeans_tcv_validation"
-concatenated_dfs = {}
-for K in tqdm(K_list):
+def merge_subroutine(K, REUSE_RESULTS = True):
+    kmeans_tcv_validation_directory = "./kmeans_tcv_validation"
+    concatenated_dfs = {}
+
     K_subfolder = os.path.join(kmeans_tcv_validation_directory,str(K))
     
     concatenated_df_fname = "merged_K={}.csv".format(K)
     concatenated_df_fpath = os.path.join(merged_directory, concatenated_df_fname)
     # Load file if exists, otherwise, create it and save it
     if os.path.exists(os.path.join(concatenated_df_fpath)) and REUSE_RESULTS:
-        concatenated_dfs[K] = pd.read_csv(concatenated_df_fpath)
+        concatenated_df = pd.read_csv(concatenated_df_fpath)
         
     else:
         print("K={} does not exist! Creating".format(K))
@@ -79,11 +85,20 @@ for K in tqdm(K_list):
         concatenated_df = dd.concat(dfs).compute()
         concatenated_df = concatenated_df.sort_values(by=["date", "k"])
         concatenated_df.to_csv(concatenated_df_fpath, index=False)
-        concatenated_dfs[K] = concatenated_df
+        #concatenated_dfs[K] = concatenated_df
 
-    concatenated_dfs[K]["date"] = pd.to_datetime(concatenated_dfs[K]["date"])
-    concatenated_dfs[K]["date_query"] = concatenated_dfs[K]["date"] + pd.Timedelta(days=7)
-    concatenated_dfs[K] = concatenated_dfs[K].drop(columns=["date"])
+    concatenated_df["date"] = pd.to_datetime(concatenated_df["date"])
+    concatenated_df["date_query"] = concatenated_df["date"] + pd.Timedelta(days=7)
+    concatenated_df = concatenated_df.drop(columns=["date"])
+    
+    return concatenated_df
+
+concatenated_dfs = {}
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    results = list(tqdm(executor.map(merge_subroutine, K_list), total=len(K_list)))
+
+for K, result in zip(K_list, results):
+    concatenated_dfs[K] = result
 
 
 # ### Load in Cluster Data
@@ -130,57 +145,63 @@ def generate_mask(df=kmeans_clusters_by_fips, K=1, k=0):
 
 # ### Set `date_query` to be 7 days after validation end
 
-# In[6]:
+# In[102]:
 
 
 ###
 REUSE_MERGED = True
 
-query_dfs = {}
-generation_cols_to_convert = ["K","k", "best_mae_window", "best_rmse_window", "fips"]
-loading_cols_to_convert = ["K", "k", "fips"]
+#for K in tqdm(K_list):
+def query_df_subroutine(K, concatenated_dfs=concatenated_dfs, REUSE_MERGED=True):
+    generation_cols_to_convert = ["K","k", "best_mae_window", "best_rmse_window", "fips"]
+    loading_cols_to_convert = ["K", "k", "fips"]
+    
+    tcv_kmeans_query_dfs_directory = "./kmeans_tcv_query_dfs"
+    os.makedirs(tcv_kmeans_query_dfs_directory, exist_ok=True)
 
-
-tcv_kmeans_query_dfs_directory = "./kmeans_tcv_query_dfs"
-os.makedirs(tcv_kmeans_query_dfs_directory, exist_ok=True)
-
-for K in tqdm(K_list):
+    
     query_df_fname = "query_K={}.csv".format(K)
     query_df_path = os.path.join(tcv_kmeans_query_dfs_directory, query_df_fname)
     if os.path.exists(os.path.join(query_df_path)) and REUSE_MERGED:
-        query_dfs[K] = pd.read_csv(query_df_path)
-        query_dfs[K][loading_cols_to_convert] = query_dfs[K][loading_cols_to_convert].astype(np.int64)
-        query_dfs[K]["date_query"] = pd.to_datetime(query_dfs[K]["date_query"])
+        query_df = pd.read_csv(query_df_path)
+        query_df[loading_cols_to_convert] = query_df[loading_cols_to_convert].astype(np.int64)
+        query_df["date_query"] = pd.to_datetime(query_df["date_query"])
 
     else:
         print("K={} does not exist! Generating".format(K))
         K_fips = kmeans_clusters_by_fips[["fips","kmeans_k={}_labels".format(K)]]
-        query_dfs[K] = pd.merge(concatenated_dfs[K], K_fips, left_on="k", right_on="kmeans_k={}_labels".format(K), how="left")
-        query_dfs[K] = query_dfs[K].sort_values(by=["date_query", "k", "fips"])
+        query_df = pd.merge(concatenated_dfs[K], K_fips, left_on="k", right_on="kmeans_k={}_labels".format(K), how="left")
+        query_df = query_df.sort_values(by=["date_query", "k", "fips"])
 
 
-        query_dfs[K][generation_cols_to_convert] = query_dfs[K][generation_cols_to_convert].astype(np.int64)
+        query_df[generation_cols_to_convert] = query_df[generation_cols_to_convert].astype(np.int64)
 
-        query_dfs[K]["mae_diff_name"] = query_dfs[K]['best_mae_window'].apply(lambda x: "diff_wsize={}_shift=7".format(x))
-        query_dfs[K]["rmse_diff_name"] = query_dfs[K]['best_rmse_window'].apply(lambda x: "diff_wsize={}_shift=7".format(x))
-        query_dfs[K] = query_dfs[K].drop(columns=["kmeans_k={}_labels".format(K) , "best_mae_window", "best_rmse_window"])
-        query_dfs[K].to_csv(query_df_path, index=False)
+        query_df["mae_diff_name"] = query_df['best_mae_window'].apply(lambda x: "diff_wsize={}_shift=7".format(x))
+        query_df["rmse_diff_name"] = query_df['best_rmse_window'].apply(lambda x: "diff_wsize={}_shift=7".format(x))
+        query_df = query_df.drop(columns=["kmeans_k={}_labels".format(K) , "best_mae_window", "best_rmse_window"])
+        query_df.to_csv(query_df_path, index=False)
+    return query_df
+    
+query_dfs = {}
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    results = list(tqdm(executor.map(query_df_subroutine, K_list), total=len(K_list)))
+
+for K, result in zip(K_list, results):
+    query_dfs[K] = result
 
 
 # ### Merge with `all_beta_df_results_diff_test`
 
-# In[ ]:
+# In[81]:
 
 
 daily_metrics_dfs = {}
 #for K in tqdm(K_list):
-daily_metrics_dfs_directory = "./daily_metrics_dfs"
-os.makedirs(daily_metrics_dfs_directory, exist_ok=True)
 
-#daily_K_list = list(range(2500, 3200, 100))
-#daily_K_list = [3136] + list(reversed(daily_K_list))
-daily_K_list = [2000]
-for K in tqdm(daily_K_list):
+#for K in tqdm(K_list):
+def daily_metrics_subroutine(K, query_dfs=query_dfs, all_beta_df_results_diff_test=all_beta_df_results_diff_test):
+    daily_metrics_dfs_directory = "./daily_metrics_dfs"
+    os.makedirs(daily_metrics_dfs_directory, exist_ok=True)
     daily_metrics_fname = "daily_metrics_K={}.csv".format(K)
     daily_metrics_path = os.path.join(daily_metrics_dfs_directory, daily_metrics_fname)
     
@@ -188,7 +209,7 @@ for K in tqdm(daily_K_list):
         daily_metrics_df = pd.read_csv(daily_metrics_path)
         daily_metrics_df["date_query"] = pd.to_datetime(daily_metrics_df["date_query"])
         daily_metrics_df.set_index('date_query', inplace=True)
-        daily_metrics_df.drop(columns='date_query', inplace=True)
+        #daily_metrics_df.drop(columns='date_query', inplace=True)
     
     else:
         print("K={} does not exist! Creating...".format(K))
@@ -211,44 +232,78 @@ for K in tqdm(daily_K_list):
                     daily_metrics_df[cname] = dk_grouped_merged.apply(lambda x : np.sqrt(np.nanmean(np.square(x))))
         
         daily_metrics_df.to_csv(daily_metrics_path)
-    daily_metrics_dfs[K] = daily_metrics_df
+    return daily_metrics_df
+
+daily_metrics_dfs = {}
+with concurrent.futures.ProcessPoolExecutor() as executor:
+    results = list(tqdm(executor.map(daily_metrics_subroutine, K_list), total=len(K_list)))
+
+for K, result in zip(K_list, results):
+    daily_metrics_dfs[K] = result
 
 
-# In[67]:
+# In[86]:
 
 
-daily_metric_df
+col_names = ["K"] + list(list(daily_metrics_dfs.values())[0].columns)
+medians_df = pd.DataFrame(columns=col_names)
+for K in K_list:
+    row = [K] + list(daily_metrics_dfs[K].median())
+    medians_df = medians_df.append(pd.Series(row, index=medians_df.columns), ignore_index=True)
 
 
-# In[68]:
+# In[87]:
 
 
-daily_metric_df.median()
+medians_df
 
 
-# In[74]:
+# In[92]:
 
 
-K_list
-
-
-# In[59]:
-
-
-plt.plot(dk_grouped_merged)
+plt.figure(figsize=(20,10))
+plt.scatter(medians_df["K"], medians_df["Chosen_by_mae_MAE"])
+plt.xlabel("Number of Clusters: K")
+plt.ylabel("Median MAE")
+plt.title("Median MAE of kmeans + tcv predictor")
 plt.show()
 
 
-# In[61]:
+# In[91]:
 
 
-dk_grouped_merged
+plt.figure(figsize=(20,10))
+plt.scatter(medians_df["K"], medians_df["Chosen_by_rmse_RMSE"])
+plt.xlabel("Number of Clusters: K")
+plt.ylabel("Median RMSE")
+plt.title("Median RMSE of kmeans + tcv predictor")
+plt.show()
 
 
-# In[69]:
+# In[96]:
 
 
-test_df = daily_metric_df.reset_index()
+plt.figure(figsize=(20,10))
+plt.plot(daily_metrics_dfs[1]["Chosen_by_mae_MAE"], label="K=1")
+plt.plot(daily_metrics_dfs[3136]["Chosen_by_mae_MAE"], label="K=3136")
+plt.xlabel("Number of Clusters: K")
+plt.ylabel("Daily MAE")
+plt.title("Daily MAE of kmeans + tcv predictor")
+plt.legend()
+plt.show()
+
+
+# In[95]:
+
+
+plt.figure(figsize=(20,10))
+plt.plot(daily_metrics_dfs[1]["Chosen_by_rmse_RMSE"], label="K=1")
+plt.plot(daily_metrics_dfs[3136]["Chosen_by_rmse_RMSE"], label="K=3136")
+plt.xlabel("Number of Clusters: K")
+plt.ylabel("Daily RMSE")
+plt.title("Daily RMSE of kmeans + tcv predictor")
+plt.legend()
+plt.show()
 
 
 # In[71]:
@@ -261,6 +316,24 @@ test_df.index = test_df["date_query"]
 
 
 test_df
+
+
+# In[99]:
+
+
+col_names = ["K"] + list(list(daily_metrics_dfs.values())[0].columns)
+old_medians_df = pd.DataFrame(columns=col_names)
+for K in K_list:
+    old_daily_metrics = daily_metrics_dfs[K]
+    old_daily_metrics = old_daily_metrics[old_daily_metrics.index >= "2020-03-06"]
+    old_row = [K] + list(old_daily_metrics.median())
+    old_medians_df = old_medians_df.append(pd.Series(old_row, index=medians_df.columns), ignore_index=True)
+
+
+# In[100]:
+
+
+old_medians_df
 
 
 # In[ ]:

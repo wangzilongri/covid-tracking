@@ -54,7 +54,7 @@ def generate_mask(df, K, k):
     return fips_list
 
 
-def tcv_subroutine(df, fips_list, window_sizes=list(range(2,15)), shift_list=list(range(1,8))):
+def tcv_subroutine(df, fips_list, window_sizes=list(range(2,15)), shift_list=[7]):
     """
     Obtain the best window sizes by MAE and RMSE per date given a cluster mask (list of fips)
     """    
@@ -78,10 +78,10 @@ def tcv_subroutine(df, fips_list, window_sizes=list(range(2,15)), shift_list=lis
         #daily_metrics_df["cumsum_rmse_wsize={}".format(window_size)] = daily_metrics_df["rmse_wsize={}".format(window_size)].cumsum()
     best_wsizes = pd.DataFrame(daily_metrics_df["date"])
     daily_mae_df = daily_metrics_df[["mae_wsize={}".format(window_size) for window_size in window_sizes]]
-    best_wsizes["best_mae_window"] = daily_mae_df.idxmin(axis=1).str[-1]
+    best_wsizes["best_mae_window"] = daily_mae_df.idxmin(axis=1).str.split('=').str[1]
     
     daily_rmse_df = daily_metrics_df[["rmse_wsize={}".format(window_size) for window_size in window_sizes]]
-    best_wsizes["best_rmse_window"] = daily_rmse_df.idxmin(axis=1).str[-1]
+    best_wsizes["best_rmse_window"] = daily_rmse_df.idxmin(axis=1).str.split('=').str[1]
     
     best_wsizes = best_wsizes[~best_wsizes["best_rmse_window"].isna()]
     best_wsizes = best_wsizes[~best_wsizes["best_mae_window"].isna()]
@@ -95,7 +95,7 @@ def tcv_subroutine(df, fips_list, window_sizes=list(range(2,15)), shift_list=lis
     return best_wsizes
 
 
-def tcv_worker(all_beta_df_results_diff, kmeans_clusters_by_fips, Kk, window_sizes=list(range(2,15)), shift_list=list(range(1,8)), kmeans_tcv_validation_directory="./kmeans_tcv_validation"):
+def tcv_worker(all_beta_df_results_diff, kmeans_clusters_by_fips, Kk, window_sizes=list(range(2,15)), shift_list=[7], kmeans_tcv_validation_directory="./kmeans_tcv_validation"):
     K, k = Kk
     K_subfolder_directory = os.path.join(kmeans_tcv_validation_directory,str(K))
     os.makedirs(K_subfolder_directory, exist_ok=True)
@@ -107,7 +107,7 @@ def tcv_worker(all_beta_df_results_diff, kmeans_clusters_by_fips, Kk, window_siz
     
     print("Executing tcv_worker on Cluster=({},{})".format(K,k))
     fips_list = generate_mask(kmeans_clusters_by_fips, K, k)
-    best_wsizes = tcv_subroutine(all_beta_df_results_diff, fips_list, window_sizes=list(range(2,15)), shift_list=list(range(1,8)))
+    best_wsizes = tcv_subroutine(all_beta_df_results_diff, fips_list, window_sizes=window_sizes, shift_list=shift_list)
     best_wsizes["K"] = K
     best_wsizes["k"] = k
     best_wsizes = best_wsizes[["K","k","date","best_mae_window", "best_rmse_window"]]
@@ -122,6 +122,15 @@ if __name__ == "__main__":
     all_beta_df_results_diff = dd.read_csv("Fixed_Windows_Validation_Diff.csv", assume_missing=True).compute()
     all_beta_df_results_diff["date"] = pd.to_datetime(all_beta_df_results_diff["date"])
     all_beta_df_results_diff = all_beta_df_results_diff.sort_values(by=["fips", "date"])
+    
+    # Keep only diff_wsize={}_shift=7
+    pattern = r'diff_wsize=\d+_shift=7'
+    filtered_cols = all_beta_df_results_diff.filter(regex=pattern).columns
+    # Include the filtered columns and desired non-matching columns
+    desired_cols = ['fips','date', 'days_from_start'] + list(filtered_cols)
+    
+    all_beta_df_results_diff = all_beta_df_results_diff[desired_cols]
+    all_beta_df_results_diff["date"] = pd.to_datetime(all_beta_df_results_diff["date"])
     all_beta_df_results_diff
 
 
@@ -145,21 +154,22 @@ if __name__ == "__main__":
     
     args = sys.argv
     script_name = args[0]  # The name of the script itself
-    K = int(args[1])  # The first argument
-    #K_end = int(args[2]) # The end (inclusive)
-    #K_step = int(args[3]) # Step
+    K_start = int(args[1])  # The first argument
+    K_end = int(args[2]) # The end (inclusive)
+    K_step = int(args[3]) # Step
     
-    #K_list = list(range(K_start, K_end + K_step, K_step))
-    Kk_list = [(K,k) for k in range(K)]
-    print("Executing {} for {}".format(script_name, K))
+    K_list = list(range(K_start, K_end + K_step, K_step))
     
     kmeans_tcv_validation_directory = "./kmeans_tcv_validation"
     os.makedirs(kmeans_tcv_validation_directory, exist_ok=True)
     
     window_sizes = list(range(2,15))
-    shift_list = list(range(1,8))
-
-    # Execute in Parallel
-    with Parallel(n_jobs=-1, backend='multiprocessing') as parallel:
-        best_wsizes_arr = parallel(delayed(tcv_worker)(all_beta_df_results_diff, kmeans_clusters_by_fips, Kk, window_sizes=window_sizes, shift_list=shift_list, kmeans_tcv_validation_directory=kmeans_tcv_validation_directory) for Kk in Kk_list)
+    shift_list = [7]
+    
+    for K in K_list:
+        Kk_list = [(K,k) for k in range(K)]
+        print("Executing {} for {}".format(script_name, K))
+        # Execute in Parallel
+        with Parallel(n_jobs=-1, backend='multiprocessing') as parallel:
+            best_wsizes_arr = parallel(delayed(tcv_worker)(all_beta_df_results_diff, kmeans_clusters_by_fips, Kk, window_sizes=window_sizes, shift_list=shift_list, kmeans_tcv_validation_directory=kmeans_tcv_validation_directory) for Kk in Kk_list)
 
