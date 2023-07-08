@@ -82,7 +82,7 @@ def merge_subroutine(K, REUSE_RESULTS = True):
         
         file_names = os.listdir(K_subfolder)
         file_paths = [os.path.join(K_subfolder, file_name) for file_name in file_names]
-        with concurrent.futures.ThreadPoolExecutor() as executor:
+        with concurrent.futures.ProcessPoolExecutor() as executor:
             # Submit the read_csv_file function to the executor for each file path
             dfs = list(tqdm(executor.map(read_csv_file, file_paths)))
         concatenated_df = dd.concat(dfs).compute()
