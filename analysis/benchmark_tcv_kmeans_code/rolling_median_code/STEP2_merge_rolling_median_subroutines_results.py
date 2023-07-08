@@ -61,15 +61,15 @@ K_step = int(args[3]) # Step
 K_list = list(range(K_start, K_end + K_step, K_step))
 #K_list = [1800]
 ### Directory to save/load merged best windows from
-merged_directory = "./merged_kmeans_tcv_expanding_median"
+merged_directory = "./merged_kmeans_tcv_rolling_median"
 os.makedirs(merged_directory, exist_ok=True)
 ### Load in the datasets
 def merge_subroutine(K, REUSE_RESULTS = True):
     def read_csv_file(file_path):
         return dd.read_csv(file_path, assume_missing=True)
-    kmeans_tcv_expanding_median_directory = "./kmeans_tcv_expanding_median"
+    kmeans_tcv_rolling_median_directory = "./kmeans_tcv_rolling_median"
     concatenated_dfs = {}
-    K_subfolder = os.path.join(kmeans_tcv_expanding_median_directory,str(K))
+    K_subfolder = os.path.join(kmeans_tcv_rolling_median_directory,str(K))
     
     concatenated_df_fname = "merged_K={}.csv".format(K)
     concatenated_df_fpath = os.path.join(merged_directory, concatenated_df_fname)

@@ -54,7 +54,7 @@ def generate_mask(df, K, k):
     return fips_list
 
 
-def expanding_median_subroutine(df, fips_list, window_sizes=list(range(2,15)), shift_list=[7]):
+def rolling_median_subroutine(df, fips_list, window_sizes=list(range(2,15)), shift_list=[7], history=7):
     df = df[df["fips"].isin(fips_list)]
     indexing_columns = ["days_from_start","date"]
     daily_metrics_df = df[indexing_columns].drop_duplicates()
@@ -71,14 +71,14 @@ def expanding_median_subroutine(df, fips_list, window_sizes=list(range(2,15)), s
         daily_metrics_df = pd.merge(daily_metrics_df, mae, on="date", how="left")
         daily_metrics_df = pd.merge(daily_metrics_df, rmse, on="date", how="left")
 
-        daily_metrics_df["expanding_median_mae_wsize={}".format(window_size)] = daily_metrics_df["mae_wsize={}".format(window_size)].expanding().median()
-        daily_metrics_df["expanding_median_rmse_wsize={}".format(window_size)] = daily_metrics_df["rmse_wsize={}".format(window_size)].expanding().median()
+        daily_metrics_df["rolling_median={}_mae_wsize={}".format(history, window_size)] = daily_metrics_df["mae_wsize={}".format(window_size)].rolling(history).median()
+        daily_metrics_df["rolling_median={}_rmse_wsize={}".format(history, window_size)] = daily_metrics_df["rmse_wsize={}".format(window_size)].rolling(history).median()
     best_wsizes = pd.DataFrame(daily_metrics_df["date"])
-    daily_mae_df = daily_metrics_df[["expanding_median_mae_wsize={}".format(window_size) for window_size in window_sizes]]
-    best_wsizes["best_mae_window"] = daily_mae_df.idxmin(axis=1).str.split('=').str[1]
+    daily_mae_df = daily_metrics_df[["rolling_median={}_mae_wsize={}".format(history, window_size) for window_size in window_sizes]]
+    best_wsizes["best_mae_window"] = daily_mae_df.idxmin(axis=1).str.split('=').str[2]
     
-    daily_rmse_df = daily_metrics_df[["expanding_median_rmse_wsize={}".format(window_size) for window_size in window_sizes]]
-    best_wsizes["best_rmse_window"] = daily_rmse_df.idxmin(axis=1).str.split('=').str[1]
+    daily_rmse_df = daily_metrics_df[["rolling_median={}_rmse_wsize={}".format(history, window_size) for window_size in window_sizes]]
+    best_wsizes["best_rmse_window"] = daily_rmse_df.idxmin(axis=1).str.split('=').str[2]
     
     best_wsizes = best_wsizes[~best_wsizes["best_rmse_window"].isna()]
     best_wsizes = best_wsizes[~best_wsizes["best_mae_window"].isna()]
@@ -89,9 +89,9 @@ def expanding_median_subroutine(df, fips_list, window_sizes=list(range(2,15)), s
     return best_wsizes
 
 
-def expanding_median_worker(all_beta_df_results_diff, kmeans_clusters_by_fips, Kk, window_sizes=list(range(2,15)), shift_list=[7], kmeans_tcv_expanding_median_directory="./kmeans_tcv_expanding_median"):
+def rolling_median_worker(all_beta_df_results_diff, kmeans_clusters_by_fips, Kk, window_sizes=list(range(2,15)), shift_list=[7], history=7, kmeans_tcv_rolling_median_directory="./kmeans_tcv_rolling_median"):
     K, k = Kk
-    K_subfolder_directory = os.path.join(kmeans_tcv_expanding_median_directory,str(K))
+    K_subfolder_directory = os.path.join(kmeans_tcv_rolling_median_directory,str(K))
     os.makedirs(K_subfolder_directory, exist_ok=True)
     best_wsizes_directory = os.path.join(K_subfolder_directory, "best_wsizes_({},{}).csv".format(K,k))
     
@@ -99,9 +99,9 @@ def expanding_median_worker(all_beta_df_results_diff, kmeans_clusters_by_fips, K
         print("{} best wsizes exists! Skipping".format(Kk))
         return
     
-    print("Executing expanding_median_worker on Cluster=({},{})".format(K,k))
+    print("Executing rolling_median_worker on Cluster=({},{})".format(K,k))
     fips_list = generate_mask(kmeans_clusters_by_fips, K, k)
-    best_wsizes = expanding_median_subroutine(all_beta_df_results_diff, fips_list, window_sizes=list(range(2,15)), shift_list=[7])
+    best_wsizes = rolling_median_subroutine(all_beta_df_results_diff, fips_list, window_sizes=list(range(2,15)), shift_list=[7], history=7)
     best_wsizes["K"] = K
     best_wsizes["k"] = k
     best_wsizes = best_wsizes[["K","k","date","best_mae_window", "best_rmse_window"]]
@@ -154,16 +154,17 @@ if __name__ == "__main__":
     
     K_list = list(range(K_start, K_end + K_step, K_step))
     
-    kmeans_tcv_expanding_median_directory = "./kmeans_tcv_expanding_median"
-    os.makedirs(kmeans_tcv_expanding_median_directory, exist_ok=True)
+    kmeans_tcv_rolling_median_directory = "./kmeans_tcv_rolling_median"
+    os.makedirs(kmeans_tcv_rolling_median_directory, exist_ok=True)
     
     window_sizes = list(range(2,15))
     shift_list = [7]
+    history = 7
     
     for K in K_list:
         Kk_list = [(K,k) for k in range(K)]
         print("Executing {} for {}".format(script_name, K))
         # Execute in Parallel
         with Parallel(n_jobs=-1, backend='multiprocessing') as parallel:
-            best_wsizes_arr = parallel(delayed(expanding_median_worker)(all_beta_df_results_diff, kmeans_clusters_by_fips, Kk, window_sizes=window_sizes, shift_list=shift_list, kmeans_tcv_expanding_median_directory=kmeans_tcv_expanding_median_directory) for Kk in Kk_list)
+            best_wsizes_arr = parallel(delayed(rolling_median_worker)(all_beta_df_results_diff, kmeans_clusters_by_fips, Kk, window_sizes=window_sizes, shift_list=shift_list, history=history, kmeans_tcv_rolling_median_directory=kmeans_tcv_rolling_median_directory) for Kk in Kk_list)
 

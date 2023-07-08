@@ -65,9 +65,10 @@ merged_directory = "./merged_kmeans_tcv_rolling"
 os.makedirs(merged_directory, exist_ok=True)
 ### Load in the datasets
 def merge_subroutine(K, REUSE_RESULTS = True):
+    def read_csv_file(file_path):
+        return dd.read_csv(file_path, assume_missing=True)
     kmeans_tcv_rolling_directory = "./kmeans_tcv_rolling"
     concatenated_dfs = {}
-
     K_subfolder = os.path.join(kmeans_tcv_rolling_directory,str(K))
     
     concatenated_df_fname = "merged_K={}.csv".format(K)
@@ -81,7 +82,9 @@ def merge_subroutine(K, REUSE_RESULTS = True):
         
         file_names = os.listdir(K_subfolder)
         file_paths = [os.path.join(K_subfolder, file_name) for file_name in file_names]
-        dfs = [dd.read_csv(file, assume_missing=True) for file in file_paths]
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            # Submit the read_csv_file function to the executor for each file path
+            dfs = list(tqdm(executor.map(read_csv_file, file_paths)))
         concatenated_df = dd.concat(dfs).compute()
         concatenated_df = concatenated_df.sort_values(by=["date", "k"])
         concatenated_df.to_csv(concatenated_df_fpath, index=False)
@@ -94,11 +97,8 @@ def merge_subroutine(K, REUSE_RESULTS = True):
     return concatenated_df
 
 concatenated_dfs = {}
-with concurrent.futures.ProcessPoolExecutor() as executor:
-    results = list(tqdm(executor.map(merge_subroutine, K_list), total=len(K_list)))
-
-for K, result in zip(K_list, results):
-    concatenated_dfs[K] = result
+for K in K_list:
+    concatenated_dfs[K] = merge_subroutine(K)
 
 
 # ### Load in Cluster Data
