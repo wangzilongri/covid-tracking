@@ -51,7 +51,7 @@ loaded_objects <- foreach(subfolder_name = subfolder_names, .errorhandling="pass
   directory_name <- basename(strsplit(subfolder_name, "/")[[1]])
   fips_string <- directory_name[length(directory_name)]
   # Get the file names of the RDS objects in the subfolder
-  loaded_objects_sub <- foreach(cutoff =seq(100, 1000, by = 100), .errorhandling="pass") %do% {
+  loaded_objects_sub <- foreach(cutoff =seq(100, 1100, by = 30), .errorhandling="pass") %do% {
       fname <- paste0("grf_individual_county_fips=",fips_string,"_cutoff=",toString(cutoff),".rds")
       print(fname)
       rds_file_path <- file.path(subfolder_name, fname)
