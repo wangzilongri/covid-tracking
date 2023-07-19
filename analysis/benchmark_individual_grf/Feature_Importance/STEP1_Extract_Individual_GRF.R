@@ -38,6 +38,22 @@ forest_depths <- function(grf_forest){
     return(forest_depths_vector)
 }
 
+get_leaf_sizes <- function(test_forest, test_data){
+      results_list <- foreach(i = 1:test_forest$`_num_trees`, .combine = "rbind") %dopar% {
+      test_tree <- get_tree(test_forest, i)
+      node_index <- get_leaf_node(test_tree, test_data)[1]
+      leaf_size <- length((test_tree$node[[node_index]])$samples)
+      tree_num_samples <- length(test_tree$drawn_samples)
+      ratio <- leaf_size / tree_num_samples
+
+      # Return the values as a named vector
+      c("Leaf Size" = leaf_size, "Tree Num Samples" = tree_num_samples, "Ratio" = ratio)
+    }
+    return(results_list)
+}
+# Convert the results list to a matrix
+#fwrite(results_list, "test_leaf.csv", row.names=FALSE)
+
 
 print("Setting up directory path")
 Individual_RDS_directory <- "../../../data/output/individual_county_grf_windowsize=2_numtrees=100"
@@ -45,8 +61,21 @@ Individual_RDS_directory <- "../../../data/output/individual_county_grf_windowsi
 # Get a list of all subfolder names (integer names)
 subfolder_names <- dir_ls(Individual_RDS_directory, type = "dir", recurse = FALSE, full_path = FALSE)
 
+if (!file.exists("./depths")) {
+  dir.create("./depths")
+}
+
+if (!file.exists("./leafs")) {
+  dir.create("./leafs")
+}
+
+if (!file.exists("./features")) {
+  dir.create("./features")
+}
+
 print("Loading Objects")
-loaded_objects <- foreach(subfolder_name = subfolder_names, .errorhandling="pass") %dopar% {
+#loaded_objects <- foreach(subfolder_name = subfolder_names, .errorhandling="pass") %dopar% {
+foreach(subfolder_name = subfolder_names, .errorhandling="pass") %dopar% {
   # Get the full path to the subfolder
   directory_name <- basename(strsplit(subfolder_name, "/")[[1]])
   fips_string <- directory_name[length(directory_name)]
@@ -58,22 +87,43 @@ loaded_objects <- foreach(subfolder_name = subfolder_names, .errorhandling="pass
       # Try reading the RDS file and extract depth
       tryCatch({
         loaded_object <- readRDS(rds_file_path)
-        depths_vector <- forest_depths(loaded_object)
-        print(paste0("Writing depths for ", fname))
-        fwrite(depths_vector, paste0("./depths/depths_fips=",fips_string,"_cutoff=",cutoff,".csv"))
-        print(paste0("Getting feature importance for ", fname))
-        feature_importance <- t(grf::variable_importance(loaded_object))
-        feature_names <- colnames(loaded_object$X.orig)
-        colnames(feature_importance) <- feature_names
-        feature_importance
+        # Check if depths data already written
+        depths_vector_fpath <- paste0("./depths/depths_fips=",fips_string,"_cutoff=",cutoff,".csv")
+        if (!file.exists(depths_vector_fpath)){
+          print(paste0("Writing depths for ", fname, " to ", depths_vector_fpath))
+          depths_vector <- forest_depths(loaded_object)
+          fwrite(depths_vector, depths_vector_fpath)
+        }
+        # Check if leaf data already written
+        leaf_matrix_fpath <- paste0("./leafs/leafs_fips=",fips_string,"_cutoff=",cutoff,".csv")
+        if (!file.exists(leaf_matrix_fpath)){
+          print(paste0("Writing leafs for ", fname, " to ", leaf_matrix_fpath))
+          test_forest <- loaded_object
+          orig_training_X = test_forest$`X.orig`
+          test_data <- orig_training_X[orig_training_X$cutoff == max(orig_training_X$cutoff),]
+          results_list <- get_leaf_sizes(test_forest, test_data)
+
+          fwrite(results_list, leaf_matrix_fpath, row.names=FALSE)
+        }
+        # Check if feature importance already written
+        features_vector_fpath <- paste0("./features/feature_importance_fips=",fips_string,"_cutoff=",cutoff,".csv")
+        if (!file.exists(features_vector_fpath)){
+          print(paste0("Writing feature importances for ", fname, " to ", features_vector_fpath))
+          feature_importance <- t(grf::variable_importance(loaded_object))
+          feature_names <- colnames(loaded_object$X.orig)
+          colnames(feature_importance) <- feature_names
+
+          fwrite(feature_importance, features_vector_fpath, row.names=FALSE)
+        }        
+        #feature_importance
       }, error = function(e) {
         NULL
       })
   }
-  compact(loaded_objects_sub)
+  #compact(loaded_objects_sub)
 }
 print("Done!")
-
+break
 print("Flattening list of list of matrices")
 loaded_objects <- loaded_objects[lengths(loaded_objects) > 0]
 unlisted_loaded_objects<-unlist(loaded_objects, recursive = FALSE)
