@@ -15,8 +15,8 @@ lapply(list.of.packages, require, character.only = TRUE)
 # Register the cluster
 registerDoParallel(core=detectCores())
 
-TLGRF_RDS_directory <- "../time_variant_grf_results/time_variant_grf_windowsize=2_numtrees=100"
-file_pattern <- "time_variant_grf_stateforest_cutoff=%d.rds"
+TLGRF_RDS_directory <- "../time_variant_no_CUSP_grf_results/time_variant_no_CUSP_grf_windowsize=2_numtrees=100"
+file_pattern <- "time_variant_no_CUSP_grf_stateforest_cutoff=%d.rds"
 days_from_start_list <-seq(100, 1000, by=100)
 # Define a function to load RDS objects
 load_rds <- function(day) {
@@ -49,7 +49,7 @@ for (i in 1:length(results)) {
 colnames(result_matrix) <- names
 
 
-fwrite(result_matrix, "time_variant_feature_importance.csv", row.names=FALSE)
+fwrite(result_matrix, "time_variant_no_CUSP_feature_importance.csv", row.names=FALSE)
 
 
 closeAllConnections()
