@@ -13,6 +13,6 @@ Source code for the backend is located at the ```src``` folder.
 The backend workflow can be found in the ```WorkFlow.txt``` document.  
 
 ## Reference and Methodology
-To reference, please cite our paper [Estimating County-Level COVID-19 Exponential Growth Rates Using Generalized Random Forests
-](https://arxiv.org/abs/2011.01219).
+To reference, please cite our paper [Small Area Estimation of Case Growths for Timely COVID-19 Outbreak Detection
+](https://arxiv.org/abs/2312.04110).
 
