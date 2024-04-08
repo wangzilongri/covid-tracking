@@ -56,7 +56,8 @@ get_leaf_sizes <- function(test_forest, test_data){
 
 TLGRF_RDS_directory <- "../../data/output/grf_windowsize=2_numtrees=200"
 #file_pattern <- "grf_stateforest_cutoff=%d.rds"
-days_from_start_list <-seq(70, 1100, by=30)
+#days_from_start_list <-seq(70, 1100, by=30)
+days_from_start_list <-(seq(800, 900, by=1))
 print("Setting up directory path")
 
 # Get a list of all subfolder names (integer names)

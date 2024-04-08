@@ -4,7 +4,7 @@ State_of_emergency_issued,6.563644186746425
 SNAP_Waiver_._Emergency_Allotments_to_Current_SNAP_Households,5.398739521098743
 Date_closed_K.12_public_schools,5.3411392800351605
 Closed_Bars,4.523039018623043
-Modify_Medicaid_requirements_with_1135_waivers_.date_of_CMS_approval.,3.951363277138477
+Modify_Medicaid_requirements_with_1135_waivers_.date_of_CMS_approval.,3.9513632771384763
 Closed_gyms,3.703255761673178
 Closed_restaurants_except_take_out,3.6156714464388457
 Closed_other_non.essential_businesses,3.4774516043911463
@@ -78,7 +78,7 @@ Date_grocery_store_workers_became_eligible_for_COVID.19_vaccination,0.1263287976
 positiveCasesViral,0.1261344060681315
 E_UNEMP,0.11818783468133509
 Variant...B.1.2,0.11637624210669562
-LAT,0.11390679372332516
+LAT,0.11390679372332511
 Variant...B.1.596,0.1130027594676852
 deathProbable,0.11266562840813849
 First_eviction_enforcement_ban_start,0.111775699674178
@@ -122,7 +122,7 @@ Variant...AY.1,0.0492202696958022
 Variant...B.1.617.1,0.04908342301222752
 Total_Unemployment_Rate_at_Extended_Benefits_program_shutoff,0.049012369790241685
 Exceptions_to_emergency_oral_prescriptions,0.04705866522307916
-Square_Miles,0.04486668207398702
+Square_Miles,0.044866682073987016
 Variant...B.1.626,0.04431856523931952
 totalTestsViralIncrease,0.040126563484753845
 Utilities_shutoff_moratorium_expiration,0.035424220402242065
@@ -142,7 +142,7 @@ MP_UNINSUR,0.02689811576918549
 Earnings_in_base_period_required_to_receive_a_.300_weekly_benefit_amount_for_UI,0.026762959675364066
 Mandate_quarantine_for_those_entering_the_state_from_specific_settings,0.02665058186370838
 Reopened_ACA_enrollment_using_a_special_enrollment_period,0.026493780743521843
-Weekly_unemployment_insurance_maximum_amount_with_extra_stimulus_.through_July_31._2020._.dollars.,0.026177998796747287
+Weekly_unemployment_insurance_maximum_amount_with_extra_stimulus_.through_July_31._2020._.dollars.,0.026177998796747277
 MP_MOBILE,0.025852482699549043
 E_POV,0.02566354578231184
 Total_Unemployment_Rate_relative_to_prior_year_...,0.02505856808430732
@@ -276,9 +276,9 @@ Air_or_ventilation_standards,0.0039031955171426247
 EPL_CROWD,0.003891857084571438
 EPL_POV,0.0038620727839567223
 Automatic_mail.in_ballot_system_in_response_to_COVID.19_.0.1.2_2_being_conditional._see_notes_for_details.,0.003847748859680023
-Closed_restaurants_.x2.,0.0038166670045601606
+Closed_restaurants_.x2.,0.003816667004560159
 Ended_face_mask_mandate,0.0037699384336861937
-CDC_moratorium_end,0.00366862379660641
+CDC_moratorium_end,0.003668623796606409
 Variant...BQ.1,0.003629764065334924
 State_department_in_charge_of_enforcing_programs,0.003593935730788791
 CDC_moratorium_start,0.003559983292299145
@@ -362,8 +362,8 @@ Different_Minimum_Wage_for_Smaller_Businesses,0.0007093054039518934
 Waived_work_search_requirement_for_unemployment_insurance,0.0006987594995827627
 Second_overall_eviction_moratorium_start,0.0006669879049780695
 Closed_gyms_.x2.,0.00037446015327902523
-Reopened_bars_.x3.,0.00037345792996419235
-Report_COVID.19_deaths_by_race.ethnicity,0.00037345792996419235
+Reopened_bars_.x3.,0.00037345792996419224
+Report_COVID.19_deaths_by_race.ethnicity,0.00037345792996419224
 Waived_COVID.respiratory_illness.related_copays_during_pandemic_for_incarcerated_individuals,0.0003669868422984164
 Vaccine_allocation_phase._Home_Healthcare_Workers,0.0003669868422984164
 Vaccine_allocation_phase._Additional_Healthcare_Workers,0.0003669868422984164
