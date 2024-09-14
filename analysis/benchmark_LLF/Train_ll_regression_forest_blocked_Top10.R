@@ -21,7 +21,7 @@ num_trees = 200
 
 
 # CREATE OUTPUT FOLDERS
-mainDir = "./llf_results_cv"
+mainDir = "./ll_regression_forest_blocked_Top10"
 dir.create(mainDir, showWarnings = FALSE)
 
 subDir = paste("llf_backtest_state_forests_windowsize=",toString(windowsize),"_numtrees=",toString(num_trees),sep="")
@@ -46,6 +46,11 @@ print("Transforming augmented_panel_data")
 # Check the number of command-line arguments
 args <- commandArgs(trailingOnly = TRUE)
 
+# Step 1: Read the CSV file and extract the top 10 feature names
+sorted_feature_importance <- read.csv("../TLGRF_Feature_Importance/Sorted_Feature_Importance.csv", header = TRUE)
+
+# Assuming the unnamed column with feature names is the first column:
+sorted_features <- sorted_feature_importance[, 1]
 
 
 # SET START AND END
@@ -107,7 +112,30 @@ foreach(cutoff = (cutoff_list)) %dopar%{
             X <- XY[, !names(XY) %in% case_number_columns]
             X <- X %>%
               select_if(is.numeric)
-            llf <- ll_regression_forest(X,Y, num.trees=num_trees)
+            
+            # Step 2: Get the column names from X_test
+            X_columns <- colnames(X)
+
+            # Step 3: Initialize an empty vector to store the valid indices
+            valid_indices <- integer(0)
+
+            # Step 4: Loop through sorted features and keep matching until we get 10 valid matches
+            for (feature in sorted_features) {
+              matched_index <- match(feature, X_columns)
+              if (!is.na(matched_index)) {
+                valid_indices <- c(valid_indices, matched_index)
+              }
+              if (length(valid_indices) >= 10) {
+                break
+              }
+            }
+
+            # Step 5: Limit to at most 10 valid indices (if necessary)
+            valid_indices <- valid_indices[1:10]
+            #print(covariates[,valid_indices])
+            
+            
+            llf <- ll_regression_forest(X[ ,valid_indices],Y, num.trees=num_trees)
             print(paste0("Saving ", check.file.full.name))
             saveRDS(llf, check.file.full.name)
         }
@@ -120,7 +148,7 @@ foreach(cutoff = (cutoff_list)) %dopar%{
         X_test <- X_test %>%
           select_if(is.numeric)
         
-        r_LLF <- predict(llf, X_test, linear.correction.variables = 1:ncol(X_test), estimate.variance=TRUE)
+        r_LLF <- predict(llf, X_test[ ,valid_indices], linear.correction.variables = 1:ncol(X_test[ ,valid_indices]), estimate.variance=TRUE)
 
         indexing_columns <- c("fips","county","state","date", "days_from_start", "rolled_cases", "log_rolled_cases")
         indexing <- XY_test[, names(XY_test) %in% indexing_columns]

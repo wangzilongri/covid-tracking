@@ -9,7 +9,7 @@ if(length(new.packages)) install.packages(new.packages, lib='/home/zwang937/loca
 lapply(list.of.packages, require, character.only = TRUE)
 
 # Register Parallel Backend for dopar
-registerDoParallel(cores=min(detectCores(), 10))
+registerDoParallel(cores=min(detectCores(), 4))
 
 
 # SET PARAMS
@@ -77,8 +77,9 @@ print(paste0("Beginning time variant for LLF from ", toString(start_day), " to "
 
 
 # Step 1: Determine the range in the logarithmic scale
-log_min <- -2
-log_max <- 1
+# -5 to 1
+log_min <- -5
+log_max <- -3
 
 # Step 2: Create a sequence in the logarithmic scale
 lambda_exponent_list <- seq(log_min, log_max)  # 100 values for example
@@ -172,7 +173,7 @@ for (lambda_exponent in lambda_exponent_list){
     
         time_taken <- end_time - start_time
 
-        print(paste("Time taken for cutoff=",toString(cutoff)," is ",toString(time_taken),sep=""))
+        print(paste("Time taken for cutoff=",toString(cutoff), " lambda_exponent=", toString(lambda_exponent)," is ",toString(time_taken),sep=""))
         rm(WYX)
         rm(X)
         rm(W)
