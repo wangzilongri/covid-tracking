@@ -22,6 +22,7 @@ __pycache__
 *.rds
 *.pickle
 *.p
+*.parquet
 
 analysis/*.csv
 analysis/**/*.csv
