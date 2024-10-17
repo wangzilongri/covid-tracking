@@ -23,6 +23,7 @@ __pycache__
 *.pickle
 *.p
 *.parquet
+*.npy
 
 analysis/*.csv
 analysis/**/*.csv
