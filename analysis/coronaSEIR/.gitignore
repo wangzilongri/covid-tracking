@@ -115,3 +115,6 @@ popup_wikipedia/cache.sqlite
 
 # Outputs
 outputs/
+
+*.csv
+*.pkl

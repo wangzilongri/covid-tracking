@@ -1,0 +1,7 @@
+fips: 8027
+T_interval_start: 497
+T_interval_end: 527
+sigma: 0.1
+gamma: 0.1
+rmse: 1.1563772391461467
+mae: 1.0171739332751903
