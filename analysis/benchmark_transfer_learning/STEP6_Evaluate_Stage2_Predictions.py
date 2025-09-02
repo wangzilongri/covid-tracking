@@ -321,7 +321,6 @@ metrics_comparison_df
 
 # In[17]:
 
-print("Plotting RMSE")
 
 plt.figure(figsize=(12,6))
 
@@ -337,11 +336,11 @@ plt.title("Root Mean Square Error (RMSE) in One-Week Ahead COVID Case Prediction
 plt.xlim(pd.to_datetime('2020-03-15'), pd.to_datetime('2023-01-01'))
 plt.ylim(0,1.0)
 plt.savefig(f"./stage2_benchmark_results/Benchmark_Stage2_lambda_exp={lambda_exp}_rmse.png")
-#plt.show()
+plt.show()
 
 
 # In[18]:
-print("Plotting MAE")
+
 
 plt.figure(figsize=(12,6))
 
@@ -358,7 +357,7 @@ plt.xlim(pd.to_datetime('2020-03-15'), pd.to_datetime('2023-01-01'))
 plt.ylim(0,0.6)
 plt.savefig(f"./stage2_benchmark_results/Benchmark_Stage2_lambda_exp={lambda_exp}_mae.png")
 
-#plt.show()
+plt.show()
 
 
 # In[19]:
