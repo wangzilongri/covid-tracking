@@ -7,11 +7,12 @@ from pyspark.sql import Row
 
 import pandas as pd
 import numpy as np
+from pyspark.sql import functions as F
 
 # COMMAND ----------
 
-base_data_path = "/mnt/users/zilongwang/TLGRF"
-results_spark_df = spark.read.parquet(os.path.join(base_data_path, "R2C1_predictions.parquet")).orderBy(["t","c"])
+base_data_path = "/mnt/users/zilongwang/TLGRF_linear"
+results_spark_df = spark.read.parquet(os.path.join(base_data_path, "R2C1_predictions.parquet")).filter(F.col("t") > 30).orderBy(["t","c"])
 
 display(results_spark_df)
 
@@ -22,7 +23,7 @@ display(results_spark_df)
 
 # COMMAND ----------
 
-if True:
+if False:
 
     df_plot = results_spark_df.select("c", "t", "r_tc", "pred_d_log_I", "pred_d_I").toPandas()
     import matplotlib.pyplot as plt
@@ -69,7 +70,7 @@ if True:
 
 # COMMAND ----------
 
-df_debug = results_spark_df.select("c", "t", "r_tc", "pred_d_log_I", "pred_d_I").toPandas()
+df_debug = results_spark_df.select("c", "t", "r_tc", "pred_d_log_I", "pred_d_I").filter("t > 30").toPandas()
 
 display(df_debug)
 
@@ -131,13 +132,13 @@ y_max = max(y_max_rmse, y_max_mae) + 0.5
 
 # RMSE plot
 plt.figure(figsize=(10, 4))
-plt.plot(daily_pd["t"], daily_pd["mean_rmse_log"], label="Mis-specified Exponential Growth Rate Model")
-plt.plot(daily_pd["t"], daily_pd["mean_rmse_lin"], label="Linear Growth Rate Model")
+plt.plot(daily_pd["t"], daily_pd["mean_rmse_lin"], label="Linear TLRF", color="blue")
+plt.plot(daily_pd["t"], daily_pd["mean_rmse_log"], label="Exponential TLRF", color="orange")
 #plt.plot(daily_pd["t"], daily_pd["mean_rmse_exp_log"], label="exp log model")
 
 plt.xlabel("Day (t)")
 plt.ylabel("Mean RMSE across counties")
-plt.title("Daily Mean RMSE of growth rate parameter estimate by Model")
+plt.title("Daily RMSE of Growth Rate Estimates")
 #plt.yticks(np.arange(0, y_max + 0.01, 1.00))
 plt.ylim(0, y_max)
 plt.legend()
@@ -146,14 +147,14 @@ plt.show()
 
 # MAE plot
 plt.figure(figsize=(10, 4))
-plt.plot(daily_pd["t"], daily_pd["mean_mae_log"], label="Mis-specified Exponential Growth Rate Model")
-plt.plot(daily_pd["t"], daily_pd["mean_mae_lin"], label="Linear Growth Rate Model")
+plt.plot(daily_pd["t"], daily_pd["mean_mae_lin"], label="Linear TLRF", color="blue")
+plt.plot(daily_pd["t"], daily_pd["mean_mae_log"], label="Exponential TLRF", color="orange")
 #plt.plot(daily_pd["t"], daily_pd["mean_mae_exp_log"], label="exp log model")
 
 
 plt.xlabel("Day (t)")
 plt.ylabel("Mean MAE across counties")
-plt.title("Daily Mean MAE of growth rate parameter estimate by Model")
+plt.title("Daily MAE of Growth Rate Estimates")
 #plt.yticks(np.arange(0, y_max + 0.01, 1.00))
 plt.ylim(0, y_max)
 plt.legend()
@@ -250,8 +251,8 @@ daily_log_metrics_pd = daily_log_metrics.toPandas()
 import matplotlib.pyplot as plt
 
 plt.figure(figsize=(10, 5))
-plt.plot(daily_log_metrics_pd["t"], daily_log_metrics_pd["log_rmse_lin"], label="Linear Growth Rate Model")
-plt.plot(daily_log_metrics_pd["t"], daily_log_metrics_pd["log_rmse_log"], label="Mis-specified Exponential Growth Rate Model")
+plt.plot(daily_log_metrics_pd["t"], daily_log_metrics_pd["log_rmse_lin"], label="Linear TLRF", color="blue")
+plt.plot(daily_log_metrics_pd["t"], daily_log_metrics_pd["log_rmse_log"], label="Exponential TLRF", color="orange")
 plt.ylabel("Log RMSE")
 plt.xlabel("t")
 plt.title("Root Mean Squared Error (RMSE) in One-Week Ahead Case Predictions")
@@ -261,8 +262,8 @@ plt.yticks(ticks=plt.yticks()[0])
 plt.show()
 
 plt.figure(figsize=(10, 5))
-plt.plot(daily_log_metrics_pd["t"], daily_log_metrics_pd["log_mae_lin"], label="Linear Growth Rate Model")
-plt.plot(daily_log_metrics_pd["t"], daily_log_metrics_pd["log_mae_log"], label="Mis-specified Exponential Growth Rate Model")
+plt.plot(daily_log_metrics_pd["t"], daily_log_metrics_pd["log_mae_lin"], label="Linear TLRF", color="blue")
+plt.plot(daily_log_metrics_pd["t"], daily_log_metrics_pd["log_mae_log"], label="Exponential TLRF", color="orange")
 plt.ylabel("Log MAE")
 plt.xlabel("t")
 plt.title("Mean Absolute Error (MAE) in One-Week Ahead Case Prediction")
@@ -310,48 +311,50 @@ import numpy as np
 import pyspark.sql.functions as F
 from matplotlib.lines import Line2D
 
-# Ensure we have log-transformed columns
-df_plot = df_joined_log.select(
-    "c", "t",
-    F.log(col("pred_I_7ahead_lin")).alias("log_pred_lin"),
-    F.log(col("pred_I_7ahead_log")).alias("log_pred_log"),
-    F.log(col("I_tc_7days_later")).alias("log_true")
-).toPandas()
+if False:
 
-# List of unique counties
-counties = sorted(df_plot["c"].unique())
-n = len(counties)
-cols = 3  # e.g. 3 plots per row
-rows = math.ceil(n / cols)
+    # Ensure we have log-transformed columns
+    df_plot = df_joined_log.select(
+        "c", "t",
+        F.log(col("pred_I_7ahead_lin")).alias("log_pred_lin"),
+        F.log(col("pred_I_7ahead_log")).alias("log_pred_log"),
+        F.log(col("I_tc_7days_later")).alias("log_true")
+    ).toPandas()
 
-fig, axes = plt.subplots(rows, cols, figsize=(cols * 5, rows * 4), sharex=True, sharey=True)
-axes = axes.flatten()
+    # List of unique counties
+    counties = sorted(df_plot["c"].unique())
+    n = len(counties)
+    cols = 3  # e.g. 3 plots per row
+    rows = math.ceil(n / cols)
 
-for idx, c_id in enumerate(counties):
-    ax = axes[idx]
-    sub = df_plot[df_plot["c"] == c_id].sort_values("t")
-    t = sub["t"]
-    ax.plot(t, sub["log_true"], label="Log True", color="black", linewidth=2)
-    ax.plot(t, sub["log_pred_lin"], label="Log Pred — Linear", ls="--", color="C1")
-    ax.plot(t, sub["log_pred_log"], label="Log Pred — Exponential", ls=":", color="C2")
-    ax.set_title(f"County {c_id}")
-    ax.set_xlabel("t")
-    ax.set_ylabel("log(cases)")
-    ax.grid(True)
+    fig, axes = plt.subplots(rows, cols, figsize=(cols * 5, rows * 4), sharex=True, sharey=True)
+    axes = axes.flatten()
 
-# Remove unused subplots if any
-for j in range(n, len(axes)):
-    fig.delaxes(axes[j])
+    for idx, c_id in enumerate(counties):
+        ax = axes[idx]
+        sub = df_plot[df_plot["c"] == c_id].sort_values("t")
+        t = sub["t"]
+        ax.plot(t, sub["log_true"], label="Log True", color="black", linewidth=2)
+        ax.plot(t, sub["log_pred_lin"], label="Log Pred — Linear", ls="--", color="C1")
+        ax.plot(t, sub["log_pred_log"], label="Log Pred — Exponential", ls=":", color="C2")
+        ax.set_title(f"County {c_id}")
+        ax.set_xlabel("t")
+        ax.set_ylabel("log(cases)")
+        ax.grid(True)
 
-fig.tight_layout()
-custom_lines = [
-    Line2D([0], [0], color='black', lw=2, label='Log True'),
-    Line2D([0], [0], color='C1', linestyle='--', label='Linear Model'),
-    Line2D([0], [0], color='C2', linestyle=':', label='Exponential Model'),
-]
+    # Remove unused subplots if any
+    for j in range(n, len(axes)):
+        fig.delaxes(axes[j])
 
-fig.legend(handles=custom_lines, loc="upper center", ncol=3, bbox_to_anchor=(0.5, 1.02))
-plt.show()
+    fig.tight_layout()
+    custom_lines = [
+        Line2D([0], [0], color='black', lw=2, label='Log True'),
+        Line2D([0], [0], color='C1', linestyle='--', label='Linear Model'),
+        Line2D([0], [0], color='C2', linestyle=':', label='Exponential Model'),
+    ]
+
+    fig.legend(handles=custom_lines, loc="upper center", ncol=3, bbox_to_anchor=(0.5, 1.02))
+    plt.show()
 
 
 # COMMAND ----------

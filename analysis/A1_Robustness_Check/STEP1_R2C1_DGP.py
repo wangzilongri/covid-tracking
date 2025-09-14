@@ -2,10 +2,11 @@
 import os
 from pyspark.sql.types import *
 from pyspark.sql import Row
+from pyspark.sql import functions as F
 
 # COMMAND ----------
 
-base_data_path = "/mnt/users/zilongwang/TLGRF"
+base_data_path = "/mnt/users/zilongwang/TLGRF_linear"
 
 # COMMAND ----------
 
@@ -17,8 +18,8 @@ from pyspark.sql.types import StructType, StructField, IntegerType, DoubleType
 np.random.seed(42)
 
 # Parameters
-T = 200  # time periods
-C = 100  # counties
+T = 365  # time periods
+C = 1000  # counties
 K = 6    # features
 
 # Storage
@@ -28,20 +29,19 @@ C_history = {}  # (c, t) -> cumulative cases C_tc
 for c in range(1, C + 1):
     C_tc = 100.0  # initialize cumulative
     for t in range(1, T + 1):
-        X = np.random.normal(loc=0.05 * t, scale=40.0, size=K)
-        intercept = float(np.sum(X))
-        growth_rate = float(np.sum([max(0, x) for x in X[:2]]))
+        X = np.random.uniform(low=0.0, high=1.0, size=K)
+        rate = 10*float(np.sum(X[:2]))
+        intercept = float(np.sum(X[:]))
 
-
-        C_tc += growth_rate  # strictly non-negative accumulation
+        C_tc += rate  # strictly non-negative accumulation
         C_history[(c, t)] = C_tc
 
         # Define I_tc := C_tc - C_{t-22,c}
-        if t > 22:
-            C_lag22 = C_history[(c, t - 22)]
-            I_tc = C_tc - C_lag22
-        else:
-            I_tc = C_tc
+        #if t > 22:
+        #    C_lag22 = C_history[(c, t - 22)]
+        #    I_tc = C_tc - C_lag22
+        #else:
+        I_tc = C_tc
 
         log_C_tc = float(np.log(C_tc + 0.001))
         log_I_tc = float(np.log(I_tc + 0.001))
@@ -54,7 +54,7 @@ for c in range(1, C + 1):
             "I_tc": float(I_tc),
             "log_I_tc": log_I_tc,
             "alpha_tc": intercept,
-            "r_tc": growth_rate
+            "r_tc": rate
         }
 
         for k in range(K):
@@ -97,13 +97,13 @@ df_spark.write.mode("overwrite").parquet(df_path)
 import matplotlib.pyplot as plt
 
 # Convert to pandas for plotting
-df_pandas = df_spark.select("t", "c", "I_tc").toPandas()
+df_pandas = df_spark.select("t", "c", "I_tc").filter(F.col("t") >= 23).toPandas()
 
 # Create figure and axis
 plt.figure(figsize=(12, 6))
 
 # Plot I_tc over time for each county using pure matplotlib
-for c in sorted(df_pandas["c"].unique())[:10]:
+for c in sorted(df_pandas["c"].unique())[:4]:
     county_data = df_pandas[df_pandas["c"] == c]
     plt.plot(
         county_data["t"],

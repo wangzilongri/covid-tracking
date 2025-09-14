@@ -24,7 +24,7 @@ from econml.grf import RegressionForest
 
 # COMMAND ----------
 
-base_data_path = "/mnt/users/zilongwang/TLGRF"
+base_data_path = "/mnt/users/zilongwang/TLGRF_linear"
 df_path = os.path.join(base_data_path, "TLGRF_R2C1_data")
 fd_odd_path = os.path.join(base_data_path, "TLGRF_R2C1_data_fd_odd")
 fd_even_path = os.path.join(base_data_path, "TLGRF_R2C1_data_fd_even")
@@ -80,7 +80,7 @@ def process_t_index(t_and_df):
     t_index, df_pd = t_and_df
 
     # Extract features and targets
-    X = df_pd[[f"X_{i}" for i in range(1, 7)]].values
+    X = df_pd[[f"X_{i}" for i in range(1, 7)] + ['t']].values
     y_log = df_pd["d_log_I"].values
     y_lin = df_pd["d_I"].values
 
@@ -108,7 +108,7 @@ def process_t_index(t_and_df):
 
     # Predict for t = t_index
     df_pred = df_pd[df_pd["t"] == t_index]
-    X_pred = df_pred[[f"X_{i}" for i in range(1, 7)]].values
+    X_pred = df_pred[[f"X_{i}" for i in range(1, 7)] + ['t']].values
 
     y_pred_log = best_forest_log.predict(X_pred)
     y_pred_lin = best_forest_lin.predict(X_pred)
@@ -146,7 +146,7 @@ def process_t_index(t_and_df):
 
 
 # Step 3: Parallel execution
-with mp.Pool(processes=mp.cpu_count()) as pool:
+with mp.Pool(processes=min(mp.cpu_count(),10)) as pool:
     results = pool.map(process_t_index, materialized_data)
 
 # Step 4: Unpack results
@@ -183,7 +183,7 @@ if False:
             df_pd = df_fd_odd.filter(F.col("t") <= t_index).toPandas()
 
         # Step 2: Extract features and targets
-        X = df_pd[[f"X_{i}" for i in range(1, 7)]].values
+        X = df_pd[[f"X_{i}" for i in range(1, 7)] + ['t']].values
         y_log = df_pd["d_log_I"].values  # Mis-specified (log-linear)
         y_lin = df_pd["d_I"].values      # Correct (linear)
 
@@ -211,7 +211,7 @@ if False:
 
         # Step 4: Predict for t == current t_index
         df_pred = df_pd[df_pd["t"] == t_index]
-        X_pred = df_pred[[f"X_{i}" for i in range(1, 7)]].values
+        X_pred = df_pred[[f"X_{i}" for i in range(1, 7)] + ['t']].values
 
         y_pred_log = best_forest_log.predict(X_pred)
         y_pred_lin = best_forest_lin.predict(X_pred)
